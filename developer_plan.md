@@ -188,14 +188,14 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 
 | 영역 | 권장 기술 | 이유 |
 |---|---|---|
-| Runtime | Node.js 22 LTS 계열 | Next.js, NestJS, Prisma 6/7 호환 범위를 안정적으로 만족 |
+| Runtime | Node.js 22 LTS 계열 | Next.js, NestJS, Drizzle ORM, shadcn CLI 호환 범위를 안정적으로 만족 |
 | Frontend | Next.js, React, TypeScript | 대시보드와 API 연동 생산성 |
 | UI | shadcn/ui, Tailwind CSS, lucide-react | 컴포넌트 코드를 소유하면서 제품 톤을 직접 설계 |
 | Form/Table | React Hook Form + Zod, TanStack Table | 입력 검증은 Zod와 공유하고, 데이터 테이블은 headless하게 구성 |
 | Chart | ECharts | 시계열, 가격 추이, 지역 비교 구현 |
 | Backend API | NestJS, TypeScript | 구조화된 모듈, DI, 테스트, 운영 안정성 |
 | Contract/Validation | Zod | 요청/응답 DTO, 환경변수, 외부 API 응답 검증을 TypeScript 타입과 함께 관리 |
-| DB Access | Prisma 6.19.x | Prisma 7의 breaking change를 피하고 안정적인 schema/migration 생산성 확보 |
+| DB Access | Drizzle ORM, drizzle-kit, pg | SQL 제어감, 타입 안정성, 명시적 migration 흐름 확보 |
 | Data Pipeline | NestJS worker 또는 별도 TypeScript worker | API 수집/정제 로직을 백엔드 타입 시스템과 공유 |
 | Queue/Scheduler | BullMQ + Redis, 초기에는 cron 가능 | 수집 작업 재시도, 실패 추적, 비동기 배치 운영 |
 | DB | PostgreSQL | TimescaleDB는 데이터량과 조회 패턴 확인 후 도입 |
@@ -205,14 +205,15 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 
 ### 7.2 스택 결정 기준
 
-- 기본 스택은 `Next.js + shadcn/ui + NestJS + PostgreSQL + Prisma 6.19.x + Zod`로 둔다.
+- 기본 스택은 `Next.js + shadcn/ui + NestJS + PostgreSQL + Drizzle ORM + Zod`로 둔다.
 - UI는 Ant Design 대신 shadcn/ui를 사용한다. shadcn/ui는 완제품 라이브러리를 가져오는 방식이 아니라 컴포넌트 소스 코드를 프로젝트에 추가하는 방식이므로, 디자인 시스템을 직접 통제할 수 있다.
 - shadcn/ui 기반 화면은 Tailwind CSS utility, CSS variable 기반 theme token, lucide icon, Radix/Base UI 계열 primitive를 조합해 만든다.
 - 데이터 테이블은 shadcn Data Table 패턴처럼 TanStack Table을 사용하고, 정렬/필터/페이지네이션 상태를 명시적으로 관리한다.
 - 폼은 React Hook Form과 Zod resolver를 사용해 frontend 입력 검증과 backend contract schema를 맞춘다.
 - `zod`는 v4 계열을 사용한다. 다만 일부 NestJS 보조 패키지는 Zod v3 peer dependency에 묶여 있으므로, 핵심 검증은 보조 패키지보다 직접 Zod schema와 pipe/helper로 구현한다.
-- Prisma는 최신 major인 v7 대신 v6.19.x로 고정한다. v7은 client 생성 방식, driver adapter, config 흐름의 변경이 있어 MVP 초기 안정성 측면에서 보수적으로 접근한다.
-- TypeScript는 최신 major보다 `5.9.x` 계열로 고정한다. Next/Nest/Prisma/Zod 호환성과 도구 생태계를 우선한다.
+- Drizzle ORM은 `drizzle-orm/node-postgres`와 `pg` pool 기반으로 시작한다. 복잡한 시계열/집계 쿼리는 Drizzle query builder와 raw SQL을 함께 사용한다.
+- schema와 migration은 `packages/db`에서 관리하고, migration 생성/적용은 drizzle-kit로 통일한다.
+- TypeScript는 최신 major보다 `5.9.x` 계열로 고정한다. Next/Nest/Drizzle/Zod 호환성과 도구 생태계를 우선한다.
 - Python은 1차 기본 백엔드에 넣지 않는다. 예측 모델이 baseline을 넘어설 때 `apps/ml` 또는 별도 sidecar로 도입한다.
 - MVP에서는 Airflow를 도입하지 않는다. 배치 수가 늘고 재시도/의존성이 복잡해질 때 Prefect 또는 Airflow-lite를 검토한다.
 - TimescaleDB는 처음부터 필수로 두지 않는다. PostgreSQL 파티션/인덱스로 시작하고 병목이 확인되면 도입한다.
@@ -226,7 +227,9 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 | next | 16.2.x | Node >=20.9 요구 |
 | react / react-dom | 19.2.x | Next 16, shadcn/ui, TanStack Query와 호환 |
 | @nestjs/core / @nestjs/common | 11.1.x | Node >=20 요구 |
-| prisma / @prisma/client | 6.19.x | 안정성 우선. v7은 별도 spike 후 검토 |
+| drizzle-orm | 0.45.x | 타입 안전한 SQL query builder/ORM |
+| drizzle-kit | 0.31.x | schema 기반 migration 생성/적용 |
+| pg | 8.22.x | PostgreSQL driver와 connection pool |
 | zod | 4.4.x | DTO, env, 외부 API 응답 검증 |
 | @asteasolutions/zod-to-openapi | 8.5.x | 필요 시 Zod schema에서 OpenAPI 생성. Zod v4 peer 지원 |
 | @tanstack/react-query | 5.101.x | API 상태/캐시 관리 |
