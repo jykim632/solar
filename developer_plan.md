@@ -188,23 +188,46 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 
 | 영역 | 권장 기술 | 이유 |
 |---|---|---|
+| Runtime | Node.js 22 LTS 계열 | Next.js, NestJS, Prisma 6/7 호환 범위를 안정적으로 만족 |
 | Frontend | Next.js, React, TypeScript | 대시보드와 API 연동 생산성 |
-| UI | Ant Design 또는 TailwindCSS | 표, 필터, 카드, 차트 구현 |
-| Chart | ECharts 또는 Highcharts | 시계열/지역 비교에 적합 |
-| Backend API | FastAPI 또는 NestJS | 팀 역량에 따라 선택. Python ETL/ML과 붙이면 FastAPI가 단순 |
-| Data Pipeline | Python, Pandas, SQLAlchemy | API 수집, 파일 정제, baseline 모델 |
-| Scheduler | cron 또는 GitHub Actions | MVP 단계에서는 충분 |
+| UI | Ant Design | 표, 필터, 입력 폼, 날짜 선택 등 업무형 화면 구현 |
+| Chart | ECharts | 시계열, 가격 추이, 지역 비교 구현 |
+| Backend API | NestJS, TypeScript | 구조화된 모듈, DI, 테스트, 운영 안정성 |
+| Contract/Validation | Zod | 요청/응답 DTO, 환경변수, 외부 API 응답 검증을 TypeScript 타입과 함께 관리 |
+| DB Access | Prisma 6.19.x | Prisma 7의 breaking change를 피하고 안정적인 schema/migration 생산성 확보 |
+| Data Pipeline | NestJS worker 또는 별도 TypeScript worker | API 수집/정제 로직을 백엔드 타입 시스템과 공유 |
+| Queue/Scheduler | BullMQ + Redis, 초기에는 cron 가능 | 수집 작업 재시도, 실패 추적, 비동기 배치 운영 |
 | DB | PostgreSQL | TimescaleDB는 데이터량과 조회 패턴 확인 후 도입 |
-| ML | scikit-learn | baseline 이후 LightGBM/XGBoost 검토 |
+| ML | 초기 TypeScript baseline, 이후 Python/scikit-learn sidecar | 1차 예측은 단순화하고 ML 필요성이 확인되면 분리 |
 | Storage | Local object directory, 이후 S3-compatible | 원본 CSV/JSON 저장 |
 | Infra | Docker Compose | 로컬/서버 배포 일관성 |
 
 ### 7.2 스택 결정 기준
 
-- 팀이 JS/TS에 강하면 `Next.js + NestJS + Python ETL`로 간다.
-- 팀이 데이터/ML 중심이면 `Next.js + FastAPI + Python ETL`이 단순하다.
+- 기본 스택은 `Next.js + NestJS + PostgreSQL + Prisma 6.19.x + Zod`로 둔다.
+- `zod`는 v4 계열을 사용한다. 다만 일부 NestJS 보조 패키지는 Zod v3 peer dependency에 묶여 있으므로, 핵심 검증은 보조 패키지보다 직접 Zod schema와 pipe/helper로 구현한다.
+- Prisma는 최신 major인 v7 대신 v6.19.x로 고정한다. v7은 client 생성 방식, driver adapter, config 흐름의 변경이 있어 MVP 초기 안정성 측면에서 보수적으로 접근한다.
+- TypeScript는 최신 major보다 `5.9.x` 계열로 고정한다. Next/Nest/Prisma/Zod 호환성과 도구 생태계를 우선한다.
+- Python은 1차 기본 백엔드에 넣지 않는다. 예측 모델이 baseline을 넘어설 때 `apps/ml` 또는 별도 sidecar로 도입한다.
 - MVP에서는 Airflow를 도입하지 않는다. 배치 수가 늘고 재시도/의존성이 복잡해질 때 Prefect 또는 Airflow-lite를 검토한다.
 - TimescaleDB는 처음부터 필수로 두지 않는다. PostgreSQL 파티션/인덱스로 시작하고 병목이 확인되면 도입한다.
+
+### 7.3 권장 패키지 버전
+
+2026-06-29 기준으로 아래 조합을 우선 검토한다.
+
+| 패키지 | 권장 버전 | 비고 |
+|---|---:|---|
+| next | 16.2.x | Node >=20.9 요구 |
+| react / react-dom | 19.2.x | Next 16, Ant Design, TanStack Query와 호환 |
+| @nestjs/core / @nestjs/common | 11.1.x | Node >=20 요구 |
+| prisma / @prisma/client | 6.19.x | 안정성 우선. v7은 별도 spike 후 검토 |
+| zod | 4.4.x | DTO, env, 외부 API 응답 검증 |
+| @asteasolutions/zod-to-openapi | 8.5.x | 필요 시 Zod schema에서 OpenAPI 생성. Zod v4 peer 지원 |
+| @tanstack/react-query | 5.101.x | API 상태/캐시 관리 |
+| antd | 6.5.x | React >=18 peer |
+| echarts | 최신 stable | 시계열/대시보드 차트 |
+| bullmq | 5.79.x | Redis 기반 배치/수집 작업 큐 |
 
 ## 8. 데이터 레이어
 
@@ -446,6 +469,17 @@ CREATE TABLE generation_forecast_hourly (
 ```
 
 ## 10. API 설계 초안
+
+API 요청/응답 계약은 Zod schema를 기준으로 정의한다. schema는 `packages/contracts`에 두고 frontend, backend, worker가 공유한다.
+
+검증 원칙:
+
+- 모든 query/path/body 입력은 NestJS controller 진입 시 Zod로 검증한다.
+- API 응답도 주요 public endpoint는 Zod schema를 기준으로 serialize한다.
+- 외부 공공데이터 API 응답은 raw 저장 후 staging 변환 전에 Zod로 최소 필수 필드와 타입을 검증한다.
+- 환경변수는 앱 부팅 시 Zod로 검증하고, 누락/형식 오류가 있으면 프로세스를 시작하지 않는다.
+- TypeScript 타입은 `z.infer<typeof Schema>`로 생성해 DTO와 타입 정의의 중복을 줄인다.
+- OpenAPI 문서는 필요 시 `@asteasolutions/zod-to-openapi`로 생성한다. NestJS 보조 패키지는 Zod v4 peer 호환성을 확인한 뒤 도입한다.
 
 ```text
 GET  /api/health
@@ -764,21 +798,29 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 - 데이터 한계가 화면에 표시된다.
 - API 실패 또는 데이터 없음 상태를 사용자에게 보여준다.
 
-### 15.3 수익 시뮬레이터
+### 15.3 API 계약/검증
+
+- 주요 request query/body schema가 Zod로 정의되어 있다.
+- 잘못된 입력은 일관된 400 응답으로 반환된다.
+- 주요 response schema가 frontend 타입과 공유된다.
+- 공공데이터 API 응답의 최소 필수 필드 검증이 staging 전 단계에 포함된다.
+- 환경변수 검증 실패 시 앱이 시작되지 않는다.
+
+### 15.4 수익 시뮬레이터
 
 - 사용자가 설비용량, REC 가중치, 수수료율, 기간을 입력할 수 있다.
 - SMP 수익, REC 수익, 총 예상수익을 계산한다.
 - 계산 가정과 면책 문구가 표시된다.
 - 동일 입력에 대해 재현 가능한 결과가 나온다.
 
-### 15.4 예측 데모
+### 15.5 예측 데모
 
 - 최소 1개 지역 이상 예측값을 생성한다.
 - 실제값과 비교해 MAE 또는 MAPE를 표시한다.
 - 모델 버전과 실행일시가 저장된다.
 - 예측 결과가 "개별 발전소 예측이 아님"을 명시한다.
 
-### 15.5 리포트
+### 15.6 리포트
 
 - 월간 요약 리포트를 생성할 수 있다.
 - 발전량 그래프, SMP/REC 요약, 수익 시뮬레이션 결과가 포함된다.
