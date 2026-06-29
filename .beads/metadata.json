@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "solar",
+  "project_id": "e9c27604-9f0c-4737-af54-4a42ea3af88b"
+}

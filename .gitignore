@@ -15,6 +15,8 @@ out/
 dist/
 build/
 coverage/
+.turbo/
+*.tsbuildinfo
 
 # Python / ETL artifacts
 __pycache__/
@@ -36,3 +38,7 @@ data/raw/
 data/staging/
 artifacts/
 reports/generated/
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+.beads-credential-key
