@@ -1,0 +1,38 @@
+# OS / editor noise
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Node / frontend build output
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+
+# Python / ETL artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local databases and logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Generated/raw data artifacts
+data/raw/
+data/staging/
+artifacts/
+reports/generated/
