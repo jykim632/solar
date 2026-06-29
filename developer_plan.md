@@ -190,7 +190,8 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 |---|---|---|
 | Runtime | Node.js 22 LTS 계열 | Next.js, NestJS, Prisma 6/7 호환 범위를 안정적으로 만족 |
 | Frontend | Next.js, React, TypeScript | 대시보드와 API 연동 생산성 |
-| UI | Ant Design | 표, 필터, 입력 폼, 날짜 선택 등 업무형 화면 구현 |
+| UI | shadcn/ui, Tailwind CSS, lucide-react | 컴포넌트 코드를 소유하면서 제품 톤을 직접 설계 |
+| Form/Table | React Hook Form + Zod, TanStack Table | 입력 검증은 Zod와 공유하고, 데이터 테이블은 headless하게 구성 |
 | Chart | ECharts | 시계열, 가격 추이, 지역 비교 구현 |
 | Backend API | NestJS, TypeScript | 구조화된 모듈, DI, 테스트, 운영 안정성 |
 | Contract/Validation | Zod | 요청/응답 DTO, 환경변수, 외부 API 응답 검증을 TypeScript 타입과 함께 관리 |
@@ -204,7 +205,11 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 
 ### 7.2 스택 결정 기준
 
-- 기본 스택은 `Next.js + NestJS + PostgreSQL + Prisma 6.19.x + Zod`로 둔다.
+- 기본 스택은 `Next.js + shadcn/ui + NestJS + PostgreSQL + Prisma 6.19.x + Zod`로 둔다.
+- UI는 Ant Design 대신 shadcn/ui를 사용한다. shadcn/ui는 완제품 라이브러리를 가져오는 방식이 아니라 컴포넌트 소스 코드를 프로젝트에 추가하는 방식이므로, 디자인 시스템을 직접 통제할 수 있다.
+- shadcn/ui 기반 화면은 Tailwind CSS utility, CSS variable 기반 theme token, lucide icon, Radix/Base UI 계열 primitive를 조합해 만든다.
+- 데이터 테이블은 shadcn Data Table 패턴처럼 TanStack Table을 사용하고, 정렬/필터/페이지네이션 상태를 명시적으로 관리한다.
+- 폼은 React Hook Form과 Zod resolver를 사용해 frontend 입력 검증과 backend contract schema를 맞춘다.
 - `zod`는 v4 계열을 사용한다. 다만 일부 NestJS 보조 패키지는 Zod v3 peer dependency에 묶여 있으므로, 핵심 검증은 보조 패키지보다 직접 Zod schema와 pipe/helper로 구현한다.
 - Prisma는 최신 major인 v7 대신 v6.19.x로 고정한다. v7은 client 생성 방식, driver adapter, config 흐름의 변경이 있어 MVP 초기 안정성 측면에서 보수적으로 접근한다.
 - TypeScript는 최신 major보다 `5.9.x` 계열로 고정한다. Next/Nest/Prisma/Zod 호환성과 도구 생태계를 우선한다.
@@ -219,13 +224,18 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 | 패키지 | 권장 버전 | 비고 |
 |---|---:|---|
 | next | 16.2.x | Node >=20.9 요구 |
-| react / react-dom | 19.2.x | Next 16, Ant Design, TanStack Query와 호환 |
+| react / react-dom | 19.2.x | Next 16, shadcn/ui, TanStack Query와 호환 |
 | @nestjs/core / @nestjs/common | 11.1.x | Node >=20 요구 |
 | prisma / @prisma/client | 6.19.x | 안정성 우선. v7은 별도 spike 후 검토 |
 | zod | 4.4.x | DTO, env, 외부 API 응답 검증 |
 | @asteasolutions/zod-to-openapi | 8.5.x | 필요 시 Zod schema에서 OpenAPI 생성. Zod v4 peer 지원 |
 | @tanstack/react-query | 5.101.x | API 상태/캐시 관리 |
-| antd | 6.5.x | React >=18 peer |
+| shadcn | 4.12.x | 컴포넌트 추가 CLI. Node >=20.18.1 요구 |
+| tailwindcss / @tailwindcss/postcss | 4.3.x | shadcn/ui 스타일 기반 |
+| lucide-react | 1.22.x | shadcn/ui와 잘 맞는 아이콘 |
+| @tanstack/react-table | 8.21.x | 데이터 테이블, 정렬, 필터, 페이지네이션 |
+| react-hook-form | 7.80.x | 폼 상태 관리 |
+| @hookform/resolvers | 5.4.x | Zod 기반 폼 검증 연결 |
 | echarts | 최신 stable | 시계열/대시보드 차트 |
 | bullmq | 5.79.x | Redis 기반 배치/수집 작업 큐 |
 
