@@ -1,6 +1,6 @@
 # Solar Market Intelligence MVP 개발계획서
 
-- 문서 버전: v0.2
+- 문서 버전: v0.3
 - 작성일: 2026-06-29
 - 수정일: 2026-06-29
 - 상태: 내부 검토용 초안
@@ -20,6 +20,8 @@
 - DB 설계에 수집 실행 이력, 원본 응답 저장, 데이터 품질 검사 테이블을 추가했다.
 - 시간대, 거래시간, 단위 변환을 별도 정책으로 명시했다.
 - 수익 계산을 실제 정산이 아니라 **가정 기반 시뮬레이션**으로 분명히 표시하도록 했다.
+- 운영 DB는 Neon Postgres, DB access는 Drizzle, 인증은 Better Auth 기반으로 정리했다.
+- 초대 기반 로그인, 조직 단위 RBAC, NestJS JWT guard, 감사 로그를 MVP 필수 범위에 추가했다.
 
 ## 2. 프로젝트 정의
 
@@ -59,6 +61,7 @@
 | 발전량/가격 대시보드 | 지역별 태양광 발전량, SMP/REC 추이 | 기간·지역 필터 동작 |
 | 수익 시뮬레이터 | 설비용량, REC 가중치, 수수료율 입력 기반 예상 수익 | 계산 가정과 면책 문구 표시 |
 | 데이터 품질 표시 | 수집 성공/실패, 최신 데이터 기준일, 누락 여부 | 화면 또는 운영 로그에서 확인 |
+| 로그인/권한 | 초대 기반 로그인, 조직별 접근 제어, 역할별 메뉴/기능 제한 | 보호 route, NestJS guard, 기본 role seed |
 
 ### 3.2 Should Have
 
@@ -94,6 +97,7 @@
 | 전력수급 상황판 | 현재 계통 상황 확인 | 현재수요, 공급능력, 예비력, 예비율 | P0 |
 | 발전량·가격 대시보드 | 지역별 태양광 발전량과 가격 추이 확인 | 발전량, SMP, REC 평균가/종가 | P0 |
 | 수익 시뮬레이터 | 가상 설비 기준 예상 수익 계산 | SMP 수익, REC 수익, 수수료, 총 예상수익 | P0 |
+| 로그인/조직 관리 | 비공개 데모 접근과 고객사별 권한 분리 | 로그인 상태, 현재 조직, 역할, 초대 | P0 |
 | 예측 데모 | 공공데이터 기반 예측 가능성 확인 | 예측 발전량, 실제 발전량, 오차율 | P1 |
 | 월간 리포트 | 고객 미팅용 샘플 자료 생성 | 월간 요약, 그래프, 수익 계산 | P1 |
 
@@ -188,24 +192,25 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 
 | 영역 | 권장 기술 | 이유 |
 |---|---|---|
-| Runtime | Node.js 22 LTS 계열 | Next.js, NestJS, Drizzle ORM, shadcn CLI 호환 범위를 안정적으로 만족 |
+| Runtime | Node.js 22 LTS 계열 | Next.js, NestJS, Drizzle ORM, Better Auth, shadcn CLI 호환 범위를 안정적으로 만족 |
 | Frontend | Next.js, React, TypeScript | 대시보드와 API 연동 생산성 |
 | UI | shadcn/ui, Tailwind CSS, lucide-react | 컴포넌트 코드를 소유하면서 제품 톤을 직접 설계 |
 | Form/Table | React Hook Form + Zod, TanStack Table | 입력 검증은 Zod와 공유하고, 데이터 테이블은 headless하게 구성 |
 | Chart | ECharts | 시계열, 가격 추이, 지역 비교 구현 |
 | Backend API | NestJS, TypeScript | 구조화된 모듈, DI, 테스트, 운영 안정성 |
 | Contract/Validation | Zod | 요청/응답 DTO, 환경변수, 외부 API 응답 검증을 TypeScript 타입과 함께 관리 |
+| Auth | Better Auth, Drizzle adapter, jose | TypeScript 기반 self-hosted 인증, 조직/역할 확장, NestJS JWT 검증 |
 | DB Access | Drizzle ORM, drizzle-kit, pg | SQL 제어감, 타입 안정성, 명시적 migration 흐름 확보 |
 | Data Pipeline | NestJS worker 또는 별도 TypeScript worker | API 수집/정제 로직을 백엔드 타입 시스템과 공유 |
 | Queue/Scheduler | BullMQ + Redis, 초기에는 cron 가능 | 수집 작업 재시도, 실패 추적, 비동기 배치 운영 |
-| DB | PostgreSQL | TimescaleDB는 데이터량과 조회 패턴 확인 후 도입 |
+| DB | Neon Postgres, 로컬 PostgreSQL | 운영/스테이징은 Neon branch, 로컬은 Docker PostgreSQL로 개발 |
 | ML | 초기 TypeScript baseline, 이후 Python/scikit-learn sidecar | 1차 예측은 단순화하고 ML 필요성이 확인되면 분리 |
 | Storage | Local object directory, 이후 S3-compatible | 원본 CSV/JSON 저장 |
 | Infra | Docker Compose | 로컬/서버 배포 일관성 |
 
 ### 7.2 스택 결정 기준
 
-- 기본 스택은 `Next.js + shadcn/ui + NestJS + PostgreSQL + Drizzle ORM + Zod`로 둔다.
+- 기본 스택은 `Next.js + shadcn/ui + NestJS + Neon Postgres + Drizzle ORM + Better Auth + Zod`로 둔다.
 - UI는 Ant Design 대신 shadcn/ui를 사용한다. shadcn/ui는 완제품 라이브러리를 가져오는 방식이 아니라 컴포넌트 소스 코드를 프로젝트에 추가하는 방식이므로, 디자인 시스템을 직접 통제할 수 있다.
 - shadcn/ui 기반 화면은 Tailwind CSS utility, CSS variable 기반 theme token, lucide icon, Radix/Base UI 계열 primitive를 조합해 만든다.
 - 데이터 테이블은 shadcn Data Table 패턴처럼 TanStack Table을 사용하고, 정렬/필터/페이지네이션 상태를 명시적으로 관리한다.
@@ -213,6 +218,8 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 - `zod`는 v4 계열을 사용한다. 다만 일부 NestJS 보조 패키지는 Zod v3 peer dependency에 묶여 있으므로, 핵심 검증은 보조 패키지보다 직접 Zod schema와 pipe/helper로 구현한다.
 - Drizzle ORM은 `drizzle-orm/node-postgres`와 `pg` pool 기반으로 시작한다. 복잡한 시계열/집계 쿼리는 Drizzle query builder와 raw SQL을 함께 사용한다.
 - schema와 migration은 `packages/db`에서 관리하고, migration 생성/적용은 drizzle-kit로 통일한다.
+- 운영/스테이징 DB는 Neon Postgres를 사용한다. 앱 런타임은 pooled `DATABASE_URL`, migration/관리 작업은 direct `DATABASE_DIRECT_URL`을 분리한다.
+- 인증은 Better Auth를 self-hosted로 사용하고 Drizzle/Neon에 사용자, 세션, 조직, 초대 정보를 저장한다. NestJS는 Better Auth JWT를 `jose`로 검증한다.
 - TypeScript는 최신 major보다 `5.9.x` 계열로 고정한다. Next/Nest/Drizzle/Zod 호환성과 도구 생태계를 우선한다.
 - Python은 1차 기본 백엔드에 넣지 않는다. 예측 모델이 baseline을 넘어설 때 `apps/ml` 또는 별도 sidecar로 도입한다.
 - MVP에서는 Airflow를 도입하지 않는다. 배치 수가 늘고 재시도/의존성이 복잡해질 때 Prefect 또는 Airflow-lite를 검토한다.
@@ -227,9 +234,11 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 | next | 16.2.x | Node >=20.9 요구 |
 | react / react-dom | 19.2.x | Next 16, shadcn/ui, TanStack Query와 호환 |
 | @nestjs/core / @nestjs/common | 11.1.x | Node >=20 요구 |
+| better-auth | 1.6.x | 로그인, 세션, 조직/권한, JWT 플러그인 |
 | drizzle-orm | 0.45.x | 타입 안전한 SQL query builder/ORM |
 | drizzle-kit | 0.31.x | schema 기반 migration 생성/적용 |
 | pg | 8.22.x | PostgreSQL driver와 connection pool |
+| jose | 6.2.x | NestJS에서 JWT/JWKS 검증 |
 | zod | 4.4.x | DTO, env, 외부 API 응답 검증 |
 | @asteasolutions/zod-to-openapi | 8.5.x | 필요 시 Zod schema에서 OpenAPI 생성. Zod v4 peer 지원 |
 | @tanstack/react-query | 5.101.x | API 상태/캐시 관리 |
@@ -481,6 +490,65 @@ CREATE TABLE generation_forecast_hourly (
 );
 ```
 
+### 9.8 인증/권한 테이블
+
+인증 자체의 사용자, 계정, 세션, verification, 조직, 멤버, 초대 테이블은 Better Auth의 Drizzle schema를 기준으로 생성한다. 실제 테이블명은 구현 시 prefix를 붙여 `auth_user`, `auth_session`, `auth_account`, `auth_organization`, `auth_member`, `auth_invitation`처럼 서비스 도메인 테이블과 충돌하지 않게 맞춘다.
+
+서비스 도메인에서 추가로 필요한 테이블은 아래처럼 둔다.
+
+```sql
+CREATE TABLE organization_profile (
+  organization_id TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  organization_type TEXT NOT NULL CHECK (organization_type IN ('internal', 'om_company', 'generator')),
+  business_registration_no TEXT,
+  default_region_code TEXT REFERENCES region(region_code),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE plant (
+  id BIGSERIAL PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organization_profile(organization_id),
+  name TEXT NOT NULL,
+  region_code TEXT REFERENCES region(region_code),
+  market_area TEXT,
+  capacity_kw NUMERIC,
+  commissioned_on DATE,
+  address TEXT,
+  lat NUMERIC,
+  lon NUMERIC,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE plant_access_grant (
+  id BIGSERIAL PRIMARY KEY,
+  plant_id BIGINT NOT NULL REFERENCES plant(id),
+  user_id TEXT NOT NULL,
+  permission TEXT NOT NULL CHECK (permission IN ('viewer', 'analyst', 'admin')),
+  granted_by TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (plant_id, user_id)
+);
+
+CREATE TABLE audit_log (
+  id BIGSERIAL PRIMARY KEY,
+  organization_id TEXT REFERENCES organization_profile(organization_id),
+  actor_user_id TEXT,
+  action TEXT NOT NULL,
+  target_type TEXT,
+  target_id TEXT,
+  ip_address INET,
+  user_agent TEXT,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+초기 MVP에서는 조직 단위 RBAC를 권한의 기본 단위로 두고, 발전소 단위 권한은 고객 데이터 PoC부터 사용한다. 모든 고객 데이터 테이블에는 `organization_id` 또는 `plant_id`를 반드시 포함한다.
+
 ## 10. API 설계 초안
 
 API 요청/응답 계약은 Zod schema를 기준으로 정의한다. schema는 `packages/contracts`에 두고 frontend, backend, worker가 공유한다.
@@ -552,6 +620,81 @@ POST /api/report/monthly
   ]
 }
 ```
+
+### 10.3 로그인/권한 API 및 처리 흐름
+
+MVP는 공개 가입형 서비스가 아니라 **초대 기반 비공개 SaaS 데모**로 시작한다. 공개 데이터 대시보드도 고객사별 즐겨찾기, 업로드 파일, 리포트가 붙는 순간 권한 경계가 필요하므로 처음부터 로그인 후 접근을 기본값으로 둔다.
+
+권장 흐름:
+
+```text
+Browser
+  -> Next.js App
+  -> Better Auth session cookie 검증
+  -> Better Auth JWT 발급 또는 조회
+  -> NestJS API Authorization: Bearer <jwt>
+  -> JwtAuthGuard
+  -> OrganizationGuard
+  -> PermissionGuard
+  -> Controller/Service
+```
+
+원칙:
+
+- 로그인 UI와 세션 쿠키는 `apps/web`의 Better Auth가 담당한다.
+- Better Auth route는 Next.js route handler에서 `/api/auth/*`로 제공한다.
+- 브라우저에는 access token을 localStorage에 저장하지 않는다. 세션은 `httpOnly`, `secure`, `sameSite=lax` 쿠키를 사용한다.
+- NestJS는 모든 보호 API에서 JWT를 검증하고, 사용자 ID와 조직 membership을 DB에서 조회해 `AuthContext`를 만든다.
+- Next.js의 route 보호는 UX와 1차 방어선이다. 실제 데이터 접근 권한은 NestJS service 가까운 곳에서 다시 검사한다.
+- 내부 배치/worker는 사용자 세션이 아니라 별도 machine credential 또는 service token을 사용한다.
+
+추가 API:
+
+```text
+GET  /api/me
+GET  /api/organizations
+GET  /api/organizations/:organizationId/members
+POST /api/organizations/:organizationId/invitations
+PATCH /api/organizations/:organizationId/members/:memberId/role
+DELETE /api/organizations/:organizationId/members/:memberId
+
+GET  /api/plants
+POST /api/plants
+PATCH /api/plants/:plantId
+GET  /api/audit-logs?organizationId=&from=&to=
+```
+
+### 10.4 권한 모델
+
+초기 권한은 RBAC로 시작하고, 고객 발전소 데이터가 붙는 시점에 발전소 단위 ABAC를 덧붙인다.
+
+| 역할 | 범위 | 가능 작업 |
+|---|---|---|
+| platform_admin | 전체 서비스 | 조직 생성, 모든 데이터/로그 조회, 장애 대응 |
+| owner | 소속 조직 | 멤버 초대/권한 변경, 발전소/리포트/업로드 관리 |
+| admin | 소속 조직 | 발전소 등록/수정, CSV 업로드, 리포트 생성, 시뮬레이션 저장 |
+| analyst | 소속 조직 | 대시보드 조회, 시뮬레이션 실행, 리포트 생성 |
+| viewer | 소속 조직 | 대시보드/리포트 조회 |
+
+권한 판정 순서:
+
+1. 인증 여부 확인
+2. `organizationId`가 사용자의 membership에 포함되는지 확인
+3. 요청 resource가 해당 organization 소유인지 확인
+4. role이 action을 허용하는지 확인
+5. 발전소 단위 override가 있으면 `plant_access_grant`를 추가 확인
+
+초기 P0 화면은 `viewer` 이상이면 조회 가능하게 둔다. CSV 업로드, 리포트 생성, 발전소 설정 변경은 `analyst` 또는 `admin` 이상으로 제한한다. 조직 멤버 초대와 역할 변경은 `owner` 이상만 허용한다.
+
+### 10.5 가입/초대 정책
+
+- 공개 회원가입은 열지 않는다.
+- 초기 내부 데모 계정은 seed script로 만든다.
+- 고객 미팅용 계정은 `platform_admin`이 조직을 만들고 `owner`를 초대한다.
+- 초대 토큰은 7일 만료로 둔다.
+- 초대 수락 시 사용자가 이미 존재하면 membership만 추가하고, 없으면 가입 후 membership을 연결한다.
+- 이메일/비밀번호 로그인을 1차로 두되, 고객사 요구가 생기면 Google/Microsoft OAuth를 추가한다.
+- 엔터프라이즈 SSO, SAML, SCIM은 MVP 범위 밖으로 둔다.
 
 ## 11. 화면 설계
 
@@ -634,6 +777,23 @@ POST /api/report/monthly
 - 가상 발전소 수익 시뮬레이션
 - 예측 모델 성능 요약
 - 데이터 한계 및 가정
+
+### 11.6 로그인/조직 관리
+
+목적: 비공개 데모 접근과 고객사별 데이터 접근을 분리한다.
+
+핵심 컴포넌트:
+
+- 로그인 화면
+- 현재 조직 선택 메뉴
+- 내 역할/권한 표시
+- 조직 멤버 목록
+- 초대 생성/재발송/취소
+- 역할 변경
+- 접근 불가 화면
+- 감사 로그 목록
+
+MVP에서는 조직 생성과 최초 owner 초대는 `platform_admin`만 수행한다. 일반 고객 사용자는 초대 수락, 조직 전환, 본인 세션 관리만 가능하게 둔다.
 
 ## 12. 예측 모델 계획
 
@@ -727,9 +887,9 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 
 | 주차 | 목표 | 산출물 | 게이트 |
 |---:|---|---|---|
-| 1주차 | 데이터 소스 확정 및 환경 구성 | API 신청 목록, 응답 샘플, DB schema, Docker compose | SMP 대체 소스 확정 |
+| 1주차 | 데이터 소스 확정 및 환경 구성 | API 신청 목록, 응답 샘플, DB/Auth schema, Docker compose | SMP 대체 소스 확정 |
 | 2주차 | P0 수집 파이프라인 구축 | 전력수급, 태양광, SMP, REC 적재 | 원본 저장/중복 방지 |
-| 3주차 | 핵심 대시보드 구현 | 전력수급 화면, 발전량·가격 화면 | 최신 기준시각 표시 |
+| 3주차 | 로그인/권한과 핵심 대시보드 구현 | 로그인, 조직 선택, 전력수급 화면, 발전량·가격 화면 | 보호 route와 최신 기준시각 표시 |
 | 4주차 | 수익 시뮬레이터 구현 | 계산 API, 화면, 면책 문구 | 샘플 시나리오 검증 |
 | 5주차 | 예측 데모와 리포트 초안 | baseline 예측, 오차율, Markdown 리포트 | 1개 지역 이상 |
 | 6주차 | QA 및 고객 인터뷰 준비 | 데모 시나리오, 인터뷰 질문지, PoC 제안서 초안 | 내부 데모 통과 |
@@ -741,6 +901,9 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 - SMP 대체 API 또는 파일 소스 확정
 - 개발계정 트래픽 제한 확인
 - DB schema 초안 작성
+- Better Auth schema와 조직/권한 schema 초안 작성
+- Neon branch 전략과 `DATABASE_URL`/`DATABASE_DIRECT_URL` 분리
+- seed용 `platform_admin` 계정 생성 방식 결정
 - 지역명/지역코드 매핑 초안 작성
 - Docker Compose 구성
 - Frontend/Backend/ETL repository 구조 결정
@@ -757,6 +920,10 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 
 ### 14.4 3주차 상세 태스크
 
+- Better Auth 로그인 화면 구현
+- Next.js 보호 route와 현재 조직 선택 구현
+- NestJS JWT guard, organization guard, permission guard 구현
+- 역할별 메뉴/버튼 노출 제어
 - 전력수급 상황판 구현
 - 발전량 시계열 그래프 구현
 - SMP/REC 가격 그래프 구현
@@ -819,21 +986,30 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 - 공공데이터 API 응답의 최소 필수 필드 검증이 staging 전 단계에 포함된다.
 - 환경변수 검증 실패 시 앱이 시작되지 않는다.
 
-### 15.4 수익 시뮬레이터
+### 15.4 인증/권한
+
+- 로그인하지 않은 사용자는 보호 화면에 접근할 수 없다.
+- NestJS 보호 API는 JWT 없이는 401을 반환한다.
+- 사용자가 속하지 않은 organization 데이터 요청은 403을 반환한다.
+- `viewer`, `analyst`, `admin`, `owner`, `platform_admin` 역할별 허용 작업이 테스트된다.
+- 초대 기반 가입과 role 변경 흐름이 동작한다.
+- 권한 변경, CSV 업로드, 리포트 생성 같은 주요 작업은 `audit_log`에 남는다.
+
+### 15.5 수익 시뮬레이터
 
 - 사용자가 설비용량, REC 가중치, 수수료율, 기간을 입력할 수 있다.
 - SMP 수익, REC 수익, 총 예상수익을 계산한다.
 - 계산 가정과 면책 문구가 표시된다.
 - 동일 입력에 대해 재현 가능한 결과가 나온다.
 
-### 15.5 예측 데모
+### 15.6 예측 데모
 
 - 최소 1개 지역 이상 예측값을 생성한다.
 - 실제값과 비교해 MAE 또는 MAPE를 표시한다.
 - 모델 버전과 실행일시가 저장된다.
 - 예측 결과가 "개별 발전소 예측이 아님"을 명시한다.
 
-### 15.6 리포트
+### 15.7 리포트
 
 - 월간 요약 리포트를 생성할 수 있다.
 - 발전량 그래프, SMP/REC 요약, 수익 시뮬레이션 결과가 포함된다.
@@ -842,11 +1018,13 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 ## 16. 의사결정 필요사항
 
 1. 초기 타깃을 태양광 O&M 업체로 확정할 것인가?
-2. MVP를 무료 공개형 대시보드로 만들 것인가, 고객 미팅용 비공개 데모로 만들 것인가?
-3. 기본 스택을 `Next.js + FastAPI + PostgreSQL + Python ETL`로 확정할 것인가?
+2. MVP를 고객 미팅용 비공개 초대형 데모로 확정할 것인가?
+3. 기본 스택을 `Next.js + shadcn/ui + NestJS + Neon Postgres + Drizzle + Better Auth + Zod`로 확정할 것인가?
 4. 예측 기능을 1차 핵심 기능이 아니라 P1 데모 기능으로 둘 것인가?
 5. 고객 인터뷰를 개발 전부터 병행할 것인가?
 6. SMP 대체 소스가 늦어질 경우 수익 시뮬레이터를 REC/사용자 입력 가격 기반으로 먼저 열 것인가?
+7. 초기 로그인 방식을 이메일/비밀번호로 시작하고 Google/Microsoft OAuth를 2차로 둘 것인가?
+8. 인증은 Better Auth self-hosted로 시작하고, 엔터프라이즈 SSO 요구가 확인될 때 Clerk/Auth0/Okta 같은 managed provider를 재검토할 것인가?
 
 ## 17. 고객 데이터 연동 확장 계획
 
@@ -872,15 +1050,42 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 
 ## 18. 보안 및 운영 고려사항
 
-MVP 단계에서는 개인정보나 고객 영업정보를 다루지 않는 구조가 바람직하다. 고객 데이터 PoC로 넘어갈 경우 다음을 고려한다.
+MVP 단계에서도 로그인 이메일, 조직명, 초대 이력 같은 최소 개인정보가 생긴다. 고객 데이터 PoC로 넘어가면 발전소 위치, 설비용량, 수익 추정치, 업로드 파일이 민감정보가 되므로 처음부터 아래 정책을 적용한다.
 
-- 고객별 데이터 접근 권한 분리
-- 발전소 위치/수익정보 보호
-- 업로드 파일 암호화 저장
-- API 키 관리
-- 로그에 민감정보 미기록
-- 백업 및 복구 정책
-- 서비스 이용약관 및 데이터 처리 동의
+### 18.1 인증/세션
+
+- 세션 쿠키는 `httpOnly`, `secure`, `sameSite=lax`로 설정한다.
+- access token은 브라우저 localStorage에 저장하지 않는다.
+- JWT 만료시간은 짧게 두고, 장기 세션은 Better Auth session으로 관리한다.
+- 비밀번호 로그인 사용 시 최소 길이, 재시도 제한, 비밀번호 재설정 이메일을 구현한다.
+- OAuth provider를 추가할 경우 허용 domain 또는 초대 기반 가입 검사를 유지한다.
+
+### 18.2 권한/테넌트 격리
+
+- 모든 고객 데이터 조회는 `organization_id` 또는 `plant_id` scope를 요구한다.
+- NestJS service layer에서 membership과 resource ownership을 확인한다.
+- 고객 데이터 테이블에는 organization scope 누락을 막는 테스트를 둔다.
+- MVP에서는 application-level tenant filter로 시작하고, 고객 데이터가 실제 운영 데이터가 되면 PostgreSQL RLS 도입을 검토한다.
+
+### 18.3 데이터/파일 보호
+
+- 발전소 위치, 수익정보, 계약조건, 업로드 파일은 organization 단위로 접근을 제한한다.
+- 업로드 원본 파일은 private object storage에 저장하고 다운로드 URL은 짧은 만료시간을 둔다.
+- 로그에는 이메일, API key, token, 원본 파일 본문 같은 민감정보를 남기지 않는다.
+- 리포트 PDF/Markdown은 생성자, 생성시각, organization scope를 기록한다.
+
+### 18.4 운영 비밀값
+
+- 공공데이터 API key, Better Auth secret, JWT signing key, Neon connection string은 환경변수로만 관리한다.
+- `DATABASE_URL`은 앱 런타임용 pooled URL, `DATABASE_DIRECT_URL`은 migration/admin 작업용 direct URL로 분리한다.
+- 로컬 `.env`는 git에 포함하지 않는다.
+- 운영 key rotation 절차를 문서화한다.
+
+### 18.5 감사/복구
+
+- 로그인 실패, 초대 생성/수락, role 변경, CSV 업로드, 리포트 생성은 감사 로그 대상이다.
+- Neon 백업/restore 정책과 branch 기반 staging 복구 절차를 확인한다.
+- 고객 데이터 PoC 전 서비스 이용약관, 개인정보 처리방침, 데이터 처리 동의 문구를 준비한다.
 
 ## 19. 주요 리스크
 
@@ -894,6 +1099,8 @@ MVP 단계에서는 개인정보나 고객 영업정보를 다루지 않는 구�
 | 기존 중개사업자 포털과 중복 | 중간 | O&M/설치업체/리포팅 자동화로 차별화 |
 | 규제 영역 오해 | 중간 | 실제 거래·입찰·제어 제외를 명시 |
 | 데이터 라이선스/이용 조건 | 중간 | 출처 표시, 이용조건 확인 |
+| 조직별 데이터 접근 누락 | 높음 | service layer 권한 검사, organization scope 테스트, 감사 로그 |
+| 인증 라이브러리 변경 리스크 | 중간 | 권한 원장을 서비스 DB schema로 분리하고 managed provider 전환 가능성 유지 |
 
 ## 20. 참고 데이터 출처
 
@@ -926,6 +1133,32 @@ MVP 단계에서는 개인정보나 고객 영업정보를 다루지 않는 구�
 9. 기상청_천리안위성 2A호 인공지능 기반 일사량 조회서비스
    https://www.data.go.kr/data/15139479/openapi.do
 
+## 21. 참고 기술 문서
+
+1. Better Auth Drizzle adapter
+   https://www.better-auth.com/docs/adapters/drizzle
+
+2. Better Auth JWT plugin
+   https://www.better-auth.com/docs/plugins/jwt
+
+3. Better Auth organization plugin
+   https://www.better-auth.com/docs/plugins/organization
+
+4. Better Auth admin plugin
+   https://www.better-auth.com/docs/plugins/admin
+
+5. Auth.js Drizzle adapter
+   https://authjs.dev/getting-started/adapters/drizzle
+
+6. Neon Drizzle guide
+   https://neon.tech/docs/guides/drizzle
+
+7. npm `better-auth`
+   https://registry.npmjs.org/better-auth/latest
+
+8. npm `jose`
+   https://registry.npmjs.org/jose/latest
+
 ## Appendix A. 1차 MVP 요약
 
 ```text
@@ -934,6 +1167,7 @@ MVP 단계에서는 개인정보나 고객 영업정보를 다루지 않는 구�
 + 지역별 태양광 발전량 분석
 + SMP/REC 가격 조회
 + 가상 설비 수익 시뮬레이터
++ 초대 기반 로그인/조직 권한
 + 제한적 발전량 예측 데모
 + 샘플 리포트 생성
 ```
