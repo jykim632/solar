@@ -1,5 +1,5 @@
 {
-  "name": "@solar/contracts",
+  "name": "@solar/api-contracts",
   "version": "0.0.0",
   "private": true,
   "type": "module",

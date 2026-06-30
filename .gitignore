@@ -18,6 +18,9 @@ coverage/
 .turbo/
 *.tsbuildinfo
 
+# Next.js generated ambient types
+next-env.d.ts
+
 # Python / ETL artifacts
 __pycache__/
 *.py[cod]
