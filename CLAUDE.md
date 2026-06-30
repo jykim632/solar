@@ -28,7 +28,7 @@ monorepo. 계획서 기준 디렉터리 구성:
 - Data pipeline worker (NestJS worker 또는 별도 TS worker) — 공공데이터 수집/정제.
 - `apps/ml` — 예측 baseline. 초기엔 TypeScript, baseline 초과 시에만 Python sidecar 분리.
 
-확정 스택: `Next.js + shadcn/ui + NestJS + Neon Postgres + Drizzle + Better Auth + Zod`. Node 22 LTS, TypeScript는 `5.9.x` 고정, zod는 v4 계열. 정확한 권장 패키지 버전 표는 `developer_plan.md` §7.3에 있으니 그대로 사용한다.
+확정 스택: `Next.js + shadcn/ui + NestJS + Neon Postgres + Drizzle + Better Auth + Zod`. Node 24.18.0 LTS (Krypton), TypeScript는 `5.9.x` 고정, zod는 v4 계열. 정확한 권장 패키지 버전 표는 `developer_plan.md` §7.3에 있으니 그대로 사용한다.
 
 ## 데이터 레이어 (핵심 규약)
 

@@ -217,7 +217,7 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 
 | 영역 | 권장 기술 | 이유 |
 |---|---|---|
-| Runtime | Node.js 22 LTS 계열 | Next.js, NestJS, Drizzle ORM, Better Auth, shadcn CLI 호환 범위를 안정적으로 만족 |
+| Runtime | Node.js 24.18.0 LTS (Krypton) | Next.js, NestJS, Drizzle ORM, Better Auth, shadcn CLI 호환 범위를 안정적으로 만족 |
 | Frontend | Next.js, React, TypeScript | 대시보드와 API 연동 생산성 |
 | UI | shadcn/ui, Tailwind CSS, lucide-react | 컴포넌트 코드를 소유하면서 제품 톤을 직접 설계 |
 | Form/Table | React Hook Form + Zod, TanStack Table | 입력 검증은 Zod와 공유하고, 데이터 테이블은 headless하게 구성 |
