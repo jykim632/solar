@@ -1,13 +1,14 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { region } from './schema/region';
+import { regionSeedRows } from './seed-data/regions';
 
 /**
  * DB seed. Uses DATABASE_DIRECT_URL (same as migrations — this is admin-side
- * setup, not app runtime). Currently seeds only the mandatory 'UNKNOWN' region
- * sentinel (§9.0): NOT NULL region_code FKs point here when the source region
- * can't be resolved, keeping UNIQUE integrity intact. datasource rows and the
- * region grid table are seeded once §5/§15 mappings are confirmed.
+ * setup, not app runtime). Region rows (UNKNOWN sentinel + 시도 17, §9.0/§9.2)
+ * are idempotent: existing region_code values are left untouched so later
+ * corrections go through migrations, not re-seeding. datasource rows are
+ * seeded once §5 checks are confirmed.
  */
 async function main(): Promise<void> {
   const url = process.env.DATABASE_DIRECT_URL;
@@ -20,14 +21,17 @@ async function main(): Promise<void> {
   const pool = new Pool({ connectionString: url });
   const db = drizzle(pool);
 
-  await db
-    .insert(region)
-    .values({ regionCode: 'UNKNOWN', regionName: '미상' })
-    .onConflictDoNothing({ target: region.regionCode });
+  try {
+    await db
+      .insert(region)
+      .values(regionSeedRows)
+      .onConflictDoNothing({ target: region.regionCode });
 
-  // eslint-disable-next-line no-console
-  console.log('[seed] ensured region UNKNOWN sentinel.');
-  await pool.end();
+    // eslint-disable-next-line no-console
+    console.log(`[seed] ensured ${regionSeedRows.length} region rows (UNKNOWN + 시도 17).`);
+  } finally {
+    await pool.end();
+  }
 }
 
 main().catch((err) => {
