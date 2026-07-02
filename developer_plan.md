@@ -1,8 +1,8 @@
 # Solar Market Intelligence MVP 개발계획서
 
-- 문서 버전: v0.4
+- 문서 버전: v0.5
 - 작성일: 2026-06-29
-- 수정일: 2026-06-29
+- 수정일: 2026-07-02
 - 상태: 내부 검토용 초안 (전문 영역 검토 반영, `review_report.md` 참조)
 - 데이터 출처 확인 기준: 2026-06-29 공공데이터포털 메타데이터
 
@@ -31,9 +31,22 @@
 - **검증 설계(기획)**: 성공 metric(§15.0) 신설, 고객 인터뷰를 6주차 끝 → 0~1주차로 전진, 인력 가정(§14.0) 명시, 의사결정 8개 클로징(§16).
 - **도메인 정정**: REC 발급식(1MWh=1REC×가중치, 분기 정산), 수익모델 정산유형 선택(현물/고정가격계약, §13.0), 트래픽 한도 단위(건/시간 vs 건/일), REC 종가 통합값.
 - **DB(DBA)**: nullable UNIQUE 제거(NOT NULL/센티넬), auth 테이블 FK 연결, NUMERIC precision + CHECK, 시계열 보조 인덱스, interval/시간 정합성 CHECK, Neon migration=direct 강제.
-- **백엔드**: BFF 패턴 명시(§10.3), API `/v1` 버저닝 + cursor 페이지네이션 + 에러 envelope, contracts 분리(api-contracts/ingestion-schemas), BullMQ 처음부터 + 멱등 upsert, worker는 NestJS standalone.
+- **백엔드**: BFF 패턴 명시(§10.3), API `/v1` 버저닝 + cursor 페이지네이션 + 에러 envelope, contracts 분리(api-contracts/ingestion-schemas), BullMQ 처음부터 + 멱등 upsert(BullMQ는 v0.5에서 EventBridge Scheduler로 대체, §1.3), worker는 NestJS standalone.
 - **프론트**: 스택 버전표 npm 실재 확인, ECharts SSR 래퍼(`ssr:false`)·multi-org 캐시·form/wire 스키마 분리·1주차 스파이크.
 - **보안**: RLS(또는 scoped repo) default-deny, JWT 비대칭+JWKS·짧은 TTL·권한 매요청 DB 조회(취소 대응), 초대 토큰 해시/single-use/이메일 바인딩, rate limit·enumeration-safe, audit append-only.
+
+### 1.3 v0.5에서 바꾼 점 (인프라 확정)
+
+인프라를 **AWS serverless**로 확정했다. 로컬 Docker/Redis를 두지 않기로 한 결정(개발 DB도 Neon 직결)에 따라 BullMQ + Redis 전제가 무효화되었고, 그 대체로 다음을 채택한다.
+
+- 컴퓨트: **Lambda** (NestJS API는 serverless-express 또는 Lambda Web Adapter, worker는 NestJS standalone 핸들러). 유휴 시 비용 ~$0, 콜드스타트 1~3초는 초대 기반 데모 단계에서 허용.
+- 수집 스케줄링: **EventBridge Scheduler**가 cron·재시도·실패추적(DLQ=SQS)을 관리형으로 담당. BullMQ가 맡던 역할을 대체하며, at-least-once + 멱등 upsert 규약(§8.2)은 그대로 유지된다.
+- Raw store: 처음부터 **S3** (기존 "로컬 디렉터리 → 이후 S3-compatible"을 앞당김).
+- DB: Neon Postgres 유지 (§7·§9 전제 변경 없음). 단 **데모 기간 수급현황 수집 주기는 15분**으로 두어 Neon Free를 유지한다(~$0/월). 고객 인터뷰에서 실시간성 니즈 확인 시 5분 + Neon Launch(~$20/월)로 전환 — EventBridge schedule 표현식 변경뿐이라 전환 비용 없음. 비용 근거·duty cycle 계산은 `docs/infra-aws-cost-simulation.md` §2.3.
+- Secrets: SSM Parameter Store.
+- 프론트 호스팅: **OpenNext on AWS**(SST v3 `Nextjs` 컴포넌트 — CloudFront + Lambda + S3) 1순위. `@opennextjs/aws`는 next **16.2.6 이상** 필요(§7.3의 16.2.x 핀과 정합, 패치 버전 주의). fallback 순서: Amplify Hosting → Cloudflare Workers(OpenNext) → Vercel Pro(Hobby는 상업적 사용 금지라 제외).
+- API Lambda 앞단에도 **CloudFront + OAC**를 둔다 — 커스텀 도메인(ACM 무료), Function URL 직접 노출 차단, 조회 응답 엣지 캐싱. CloudFront always-free(월 1TB·10M 요청)로 데모~PoC 추가 비용 $0. OAC 뒤 POST는 `x-amz-content-sha256` 헤더 필요(BFF fetch 래퍼에서 처리, 1주차 walking skeleton에서 확인).
+- 배포/IaC 도구는 **SST v3 유력**(프론트 배포가 따라옴), 최종 확정은 3주차 배포 이슈에서. 1~2주차는 로컬 개발만으로 진행 가능.
 
 ## 2. 프로젝트 정의
 
@@ -227,11 +240,11 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 | Auth | Better Auth, Drizzle adapter, jose | TypeScript 기반 self-hosted 인증, 조직/역할 확장, NestJS JWT 검증 |
 | DB Access | Drizzle ORM, drizzle-kit, pg | SQL 제어감, 타입 안정성, 명시적 migration 흐름 확보 |
 | Data Pipeline | NestJS standalone application(worker) | DI/config/DB풀/adapter/contracts를 api와 재사용. 별도 TS worker는 코드 중복을 유발하므로 NestJS standalone으로 확정 |
-| Queue/Scheduler | BullMQ + Redis (처음부터 도입) | 수집 작업 재시도, 실패 추적, 비동기 배치 운영. cron은 repeatable job 트리거로만 |
-| DB | Neon Postgres, 로컬 PostgreSQL | 운영/스테이징은 Neon branch, 로컬은 Docker PostgreSQL로 개발 |
+| Queue/Scheduler | EventBridge Scheduler (+ SQS DLQ) | 수집 cron·재시도·실패 추적을 관리형으로. Redis/BullMQ 미사용(§1.3) |
+| DB | Neon Postgres | 운영/스테이징은 Neon branch, 개발도 Neon 직결(로컬 PostgreSQL 없음) |
 | ML | 초기 TypeScript baseline, 이후 Python/scikit-learn sidecar | 1차 예측은 단순화하고 ML 필요성이 확인되면 분리 |
-| Storage | Local object directory, 이후 S3-compatible | 원본 CSV/JSON 저장 |
-| Infra | Docker Compose | 로컬/서버 배포 일관성 |
+| Storage | S3 | 원본 CSV/JSON 저장 (`raw_object.object_path` = S3 key) |
+| Infra | AWS serverless (Lambda + EventBridge Scheduler + S3 + SSM) | 유휴 시 비용 ~$0. IaC(SST v3 vs CDK)는 3주차 결정. 프론트는 Amplify Hosting(불가 시 Vercel) |
 
 ### 7.2 스택 결정 기준
 
@@ -278,7 +291,7 @@ SMP 계통한계가격의 거래시간 0시는 00:00 직후부터 01:00까지의
 | @hookform/resolvers | 5.4.x | Zod 기반 폼 검증 연결 (Standard Schema, zod v4 OK) |
 | echarts | 6.1.x | 시계열/대시보드 차트. ESM tree-shaking 권장(`echarts/core` 임포트) |
 | echarts-for-react | 3.0.x | React 래퍼. peer가 `react>=16`이라 React 19 명시 미포함(설치 경고 가능, 동작 OK). 또는 래퍼 없이 echarts core 직접 사용 |
-| bullmq | 5.79.x | Redis 기반 배치/수집 작업 큐 |
+| @codegenie/serverless-express | 4.x | NestJS API를 Lambda 핸들러로 감싸는 어댑터 (또는 AWS Lambda Web Adapter 사용, 3주차 확정) |
 
 2026-06-29 npm registry 확인 결과 위 버전은 모두 실재하며 peer dependency 사슬(better-auth ↔ drizzle-orm ↔ next ↔ zod ↔ zod-to-openapi)이 정합한다.
 
@@ -312,8 +325,8 @@ Datasource Adapter
 - mart 적재 전 row count, null count, 시간 연속성, 단위 범위를 검사한다.
 
 멱등성·스케줄링 규약:
-- **처음부터 BullMQ + Redis로 시작한다.** "초기엔 cron"은 재시도/실패추적/동시성 제어를 손으로 다시 구현하게 만든다. cron은 BullMQ repeatable job을 등록하는 트리거로만 쓰면 전환 비용이 사라진다(Redis는 Docker Compose에 1주차 추가).
-- 수집 job은 at-least-once다. **최종 멱등성은 mart의 `INSERT ... ON CONFLICT (natural key) DO UPDATE` upsert로 보장**한다(DB UNIQUE 제약을 단일 진실로). BullMQ jobId는 `datasource:interval` 조합으로 두어 중복 enqueue를 막는다.
+- **스케줄링은 EventBridge Scheduler로 한다**(§1.3). datasource별 schedule이 worker Lambda를 cron 호출하고, 재시도는 Scheduler retry policy, 최종 실패는 SQS DLQ에 적재한다. 재시도/실패추적/동시성 제어를 손으로 재구현하지 않는다. 로컬 개발에서는 같은 worker 엔트리포인트를 CLI로 직접 실행한다(스케줄러 없이 1회 수집).
+- 수집 job은 at-least-once다(EventBridge 전달 보장과 동일 전제). **최종 멱등성은 mart의 `INSERT ... ON CONFLICT (natural key) DO UPDATE` upsert로 보장**한다(DB UNIQUE 제약을 단일 진실로). 중복 실행 방지는 큐 jobId 대신 `datasource:interval` 단위의 멱등 upsert와 `ingestion_run` 기록으로 처리한다.
 - `ingestion_run.status`의 `partial` 정의: 요청 구간 중 일부 interval만 성공한 경우. 재시도는 이미 성공한 interval을 skip하는 재진입(resumable) 방식으로 한다.
 - 수집 스케줄은 데이터소스별 트래픽 한도(건/시간 vs 건/일, §5.2·§5.4)에서 역산한다. 시간당 한도(수급·태양광)는 증분 수집 키(`source_date`/`source_hour`, `slot_at`)로 "새 구간이 나왔을 때만" 호출한다.
 
@@ -1031,8 +1044,8 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 
 | 주차 | 목표 | 산출물 | 게이트 |
 |---:|---|---|---|
-| 0~1주차 | 인터뷰 선행 + 데이터 소스 확정 + 환경 구성 | 인터뷰 5건+, API 신청(D-14 선제출), 응답 샘플, DB schema, Docker compose(Redis 포함), **인증 walking skeleton(BFF)**, ECharts/토큰 fetch 래퍼 스파이크 | 도메인 체크리스트(§5.5·아래) + 로그인→보호 API 1콜 성공 |
-| 2주차 | P0 수집 파이프라인(BullMQ) | 전력수급, 태양광, SMP, REC 적재 | 원본 저장/중복 방지(upsert 멱등) |
+| 0~1주차 | 인터뷰 선행 + 데이터 소스 확정 + 환경 구성 | 인터뷰 5건+, API 신청(D-14 선제출), 응답 샘플, DB schema, Neon 연결(pooled/direct), **인증 walking skeleton(BFF)**, ECharts/토큰 fetch 래퍼 스파이크 | 도메인 체크리스트(§5.5·아래) + 로그인→보호 API 1콜 성공 |
+| 2주차 | P0 수집 파이프라인(EventBridge+Lambda 전제, 로컬은 CLI 실행) | 전력수급, 태양광, SMP, REC 적재 | 원본 저장/중복 방지(upsert 멱등) |
 | 3주차 | 핵심 대시보드 + 단일 로그인 | 전력수급 화면, 발전량·가격 화면, 필터, 단일 로그인 게이트 | 최신 기준시각·데이터 한계 표시 |
 | 4주차 | 수익 시뮬레이터 | 정산유형 선택 계산 API, 화면, 면책 문구 | 샘플 시나리오 검증 |
 | 5주차 | (버퍼/조건부) 예측 데모·리포트 | baseline 예측, 오차율, Markdown 리포트 | **인터뷰에서 예측 니즈 확인 시에만 착수**, 아니면 버퍼/리포트·비교에 사용 |
@@ -1050,7 +1063,7 @@ MVP에서는 아래 방식 중 하나를 선택할 수 있게 설계한다.
 - 단일 로그인 게이트 + seed 계정 생성 방식 결정(멀티테넌트 RBAC는 PoC 단계로 이연)
 - **인증 walking skeleton(BFF 토큰 전달)** + ECharts `<ChartContainer>` 래퍼 + 토큰 fetch 래퍼 스파이크
 - 지역명/지역코드 매핑 초안 작성(`UNKNOWN` 센티넬 포함)
-- Docker Compose 구성(PostgreSQL + Redis)
+- AWS 계정/리전 확정 + S3 raw bucket 네이밍 결정 (배포 IaC는 3주차)
 - monorepo 구조 확정(apps/web, apps/api, packages/db, packages/api-contracts, packages/ingestion-schemas, NestJS standalone worker)
 
 ### 14.3 2주차 상세 태스크
