@@ -12,13 +12,56 @@ export type MarketArea = z.infer<typeof MarketAreaSchema>;
 export const FuelTypeSchema = z.enum(['SOLAR', 'WIND']);
 export type FuelType = z.infer<typeof FuelTypeSchema>;
 
-/** Standard error envelope returned by the NestJS api on validation/auth failures. */
+/** Error codes for the standard API envelope (developer_plan.md §10, §15.3). */
+export const ApiErrorCode = {
+  VALIDATION_FAILED: 'VALIDATION_FAILED',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  NOT_FOUND: 'NOT_FOUND',
+  CONFLICT: 'CONFLICT',
+  RATE_LIMITED: 'RATE_LIMITED',
+  INTERNAL: 'INTERNAL',
+} as const;
+export type ApiErrorCode = (typeof ApiErrorCode)[keyof typeof ApiErrorCode];
+
+export const ApiErrorCodeSchema = z.enum([
+  ApiErrorCode.VALIDATION_FAILED,
+  ApiErrorCode.UNAUTHORIZED,
+  ApiErrorCode.FORBIDDEN,
+  ApiErrorCode.NOT_FOUND,
+  ApiErrorCode.CONFLICT,
+  ApiErrorCode.RATE_LIMITED,
+  ApiErrorCode.INTERNAL,
+]);
+
+/** Validation issue details exposed by the API without leaking raw Zod internals. */
+export const ApiErrorDetailSchema = z.object({
+  path: z.string(),
+  message: z.string(),
+});
+export type ApiErrorDetail = z.infer<typeof ApiErrorDetailSchema>;
+
+/** Standard error envelope returned by the NestJS API (developer_plan.md §10). */
 export const ApiErrorSchema = z.object({
-  statusCode: z.number().int(),
-  error: z.string(),
-  message: z.union([z.string(), z.array(z.string())]),
+  code: ApiErrorCodeSchema,
+  message: z.string(),
+  details: z.array(ApiErrorDetailSchema).optional(),
 });
 export type ApiError = z.infer<typeof ApiErrorSchema>;
+
+export const ApiErrorCodeByHttpStatus = {
+  400: ApiErrorCode.VALIDATION_FAILED,
+  401: ApiErrorCode.UNAUTHORIZED,
+  403: ApiErrorCode.FORBIDDEN,
+  404: ApiErrorCode.NOT_FOUND,
+  409: ApiErrorCode.CONFLICT,
+  429: ApiErrorCode.RATE_LIMITED,
+  500: ApiErrorCode.INTERNAL,
+} as const satisfies Record<number, ApiErrorCode>;
+
+export function apiErrorCodeForHttpStatus(status: number): ApiErrorCode {
+  return ApiErrorCodeByHttpStatus[status as keyof typeof ApiErrorCodeByHttpStatus] ?? ApiErrorCode.INTERNAL;
+}
 
 /** ISO date string (YYYY-MM-DD), validated as a real calendar date. */
 export const IsoDateSchema = z

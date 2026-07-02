@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 import { HealthController } from './health.controller';
 
 /**
- * Root module. Guards (JwtAuthGuard → OrganizationGuard → PermissionGuard),
- * the global ZodValidationPipe, and the error-envelope exception filter are
- * wired in solar-8wv.14 / solar-r32.2. This is the bootable skeleton.
+ * Root module. The §10/§15.3 error-envelope filter is wired here.
+ * Guards (JwtAuthGuard → OrganizationGuard → PermissionGuard) remain solar-r32.2.
  */
 @Module({
   controllers: [HealthController],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
