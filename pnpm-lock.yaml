@@ -75,6 +75,9 @@ importers:
       '@solar/api-contracts':
         specifier: workspace:*
         version: link:../../packages/api-contracts
+      '@solar/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@tanstack/react-query':
         specifier: 5.101.0
         version: 5.101.0(react@19.2.0)
@@ -115,6 +118,9 @@ importers:
       '@types/react-dom':
         specifier: 19.2.0
         version: 19.2.0(@types/react@19.2.0)
+      tsx:
+        specifier: 4.20.6
+        version: 4.20.6
       typescript:
         specifier: 5.9.2
         version: 5.9.2

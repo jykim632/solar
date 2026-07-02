@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Injectable,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import type { ArgumentsHost, ExceptionFilter, LoggerService } from '@nestjs/common';
 import { apiErrorCodeForHttpStatus } from '@solar/api-contracts';
@@ -14,7 +15,11 @@ import type { Response } from 'express';
 @Catch()
 @Injectable()
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger: LoggerService = new Logger(HttpExceptionFilter.name)) {}
+  // LoggerService is an interface — reflection emits Object, so DI must not
+  // try to resolve it. @Optional() lets the default kick in under APP_FILTER.
+  constructor(
+    @Optional() private readonly logger: LoggerService = new Logger(HttpExceptionFilter.name),
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();

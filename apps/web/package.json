@@ -8,10 +8,12 @@
     "start": "next start -p 3000",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "next lint",
-    "clean": "rm -rf .next *.tsbuildinfo"
+    "clean": "rm -rf .next *.tsbuildinfo",
+    "seed:auth-user": "tsx scripts/seed-auth-user.ts"
   },
   "dependencies": {
     "@solar/api-contracts": "workspace:*",
+    "@solar/db": "workspace:*",
     "@tanstack/react-query": "5.101.0",
     "better-auth": "1.6.0",
     "echarts": "6.1.0",
@@ -28,6 +30,7 @@
     "@types/node": "24.7.0",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
+    "tsx": "4.20.6",
     "typescript": "5.9.2"
   }
 }
