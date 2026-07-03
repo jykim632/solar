@@ -220,7 +220,7 @@
     </nav>
 
     <div class="px-4 py-3 text-[11px] border-t" style="border-color: var(--border); color: var(--text-muted);">
-      내부 시안 v3 · 데이터는 전부 더미
+      내부 시안 v4 · 데이터는 전부 더미 (표기만 실측 반영)
     </div>
   </aside>
 
@@ -271,7 +271,7 @@
         <div class="flex items-center gap-3 text-xs" style="color: var(--text-muted);">
           <span class="flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full" style="background: var(--status-good);"></span>
-            수집 정상 · 5분 주기
+            수집 정상 · 15분 주기 (데모)
           </span>
           <span>기준시각 2026-07-02 14:35 KST</span>
         </div>
@@ -311,14 +311,14 @@
       <div class="card p-4">
         <div class="flex items-baseline justify-between">
           <h2 class="text-sm font-semibold">최근 24시간 수요·공급능력</h2>
-          <span class="text-xs" style="color: var(--text-muted);">MW · 5분 단위</span>
+          <span class="text-xs" style="color: var(--text-muted);">MW · 15분 단위 (데모)</span>
         </div>
         <div id="chart-demand" class="mt-2" style="min-height: 260px;"></div>
       </div>
       <div class="card p-4">
         <div class="flex items-baseline justify-between">
           <h2 class="text-sm font-semibold">최근 24시간 공급예비율</h2>
-          <span class="text-xs" style="color: var(--text-muted);">% · 5분 단위</span>
+          <span class="text-xs" style="color: var(--text-muted);">% · 15분 단위 (데모)</span>
         </div>
         <div id="chart-reserve" class="mt-2" style="min-height: 200px;"></div>
         <p class="mt-2 text-xs" style="color: var(--text-muted);">
@@ -343,7 +343,7 @@
             개별 발전소가 아닌 한국전력거래소 공공데이터의 지역 단위 집계값입니다.
           </p>
         </div>
-        <span class="text-xs" style="color: var(--text-muted);">기준일 2026-07-01 (일 단위 집계)</span>
+        <span class="text-xs" style="color: var(--text-muted);">발전량 기준일 2026-04-30 · 원천 월 단위 갱신(약 2개월 지연) / REC 기준일 2026-07-01</span>
       </div>
 
       <!-- 필터 1행: 기간 preset 먼저, 그다음 지역 -->
@@ -417,8 +417,9 @@
 
       <!-- 데이터 한계 안내 -->
       <div class="card px-4 py-3 text-xs leading-relaxed" style="color: var(--text-muted);">
-        데이터 한계: 발전량은 한국전력거래소 공공데이터의 광역시도·시간별 집계값으로 개별 발전소 실측값이 아닙니다.
-        REC 가격은 현물시장 거래일 기준이며 계약시장 가격을 포함하지 않습니다. 출처: 한국전력거래소.
+        데이터 한계: 발전량은 한국전력거래소 공공데이터의 광역시도·시간별 집계값으로 개별 발전소 실측값이 아니며,
+        원천이 월 단위로 갱신되어 최근 1~2개월 구간은 제공되지 않을 수 있습니다.
+        REC 가격은 현물시장 거래일(화·목) 기준이고 종가는 육지 시장 기준이며 계약시장 가격을 포함하지 않습니다. 출처: 한국전력거래소.
       </div>
     </main>
 
@@ -489,7 +490,7 @@
           </label>
           <label class="block">
             <span class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">REC 가격 기준 <button type="button" class="term tip-left" data-term="recPrice" aria-label="REC 가격 기준 설명">?</button></span>
-            <select class="mt-1 w-full"><option>현물시장 평균가</option><option>현물시장 종가</option></select>
+            <select class="mt-1 w-full"><option>현물시장 평균가</option><option>현물시장 종가 (육지 기준)</option></select>
           </label>
           <button class="w-full rounded-lg py-2 text-sm font-semibold text-white" style="background: var(--series-1);">계산하기</button>
         </div>
@@ -851,7 +852,7 @@ const TERMS = {
   recWeight:  { name: 'REC 가중치',     unit: '배',     desc: '설비 유형·규모에 따라 REC 발급량에 곱해지는 계수입니다. 예: 일반부지 태양광 1.0, 건축물 활용 시 1.5.' },
   brokerFee:  { name: '중개 수수료율',  unit: '%',      desc: '전력거래 중개사업자를 통해 거래할 때 판매 수익에서 차감되는 수수료 비율입니다.' },
   genMethod:  { name: '발전량 산정 방식', unit: '',      desc: '"지역 실적 비례"는 같은 지역의 공공데이터 발전 실적을 내 설비용량에 비례 배분해 추정합니다. 설비이용률을 직접 입력할 수도 있습니다.' },
-  recPrice:   { name: 'REC 가격 기준',  unit: '',       desc: '수익 계산에 현물시장 평균가를 쓸지 종가를 쓸지 선택합니다. 평균가가 좀 더 보수적인 기준입니다.' },
+  recPrice:   { name: 'REC 가격 기준',  unit: '',       desc: '수익 계산에 현물시장 평균가를 쓸지 종가를 쓸지 선택합니다. 종가는 육지 시장 기준 단일값입니다(제주는 별도 평균가 참고). 평균가가 좀 더 보수적인 기준입니다.' },
   capacityFactor: { name: '설비이용률', unit: '%',      desc: '설비가 최대 출력으로 쉬지 않고 돌았다고 가정했을 때 대비 실제 발전량의 비율입니다. 국내 태양광은 보통 13~17% 수준입니다.' },
   marketArea: { name: '육지/제주 시장', unit: '',       desc: '제주는 계통이 분리되어 SMP가 육지와 따로 정해집니다. 설비 위치에 맞는 시장을 선택하세요.' },
   mae:        { name: 'MAE (평균절대오차)', unit: 'MWh', desc: '예측이 실제와 평균 몇 MWh 어긋났는지입니다. 작을수록 정확합니다.' },
