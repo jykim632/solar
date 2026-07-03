@@ -6,9 +6,11 @@ type RegionSeedRow = typeof region.$inferInsert;
  * 시도 17 + UNKNOWN 센티널 (§9.2, solar-8wv.15). region_code는 ISO suffix형
  * 로마자 mnemonic — 공식 명칭이 바뀌어도(강원/전북 특별자치도) 코드는 불변.
  *
- * needs-verification (solar-8wv.4 응답 샘플로 대조):
- * - kpx_region_name: 통용 축약명 초안. 실제 KPX API 응답의 지역 문자열
- *   (공백/전체명/'합계' row/세종 독립 row 여부) 확인 전까지 draft.
+ * kpx_region_name은 2026-07-03 실응답(data/samples/pv-gen-20251231-full.json)
+ * 으로 검증 완료: 광역시는 '서울시' 형태, 도는 '강원도'/'전라북도'(특별자치도
+ * 아님), 세종은 '세종시' 독립 row, 전국 합계 row 없음. tradeNo는 1~24 베이스.
+ *
+ * needs-verification (남은 것):
  * - kma_grid_x/y: 기상청 단기예보 활용가이드 격자표 초안. 시도 대표점이
  *   논쟁 가능한 값: CHUNGNAM 55/107, JEONNAM 51/67, GYEONGBUK 87/106,
  *   GYEONGGI 60/120 (도청 소재지 기준).
@@ -23,7 +25,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'SEOUL',
     regionName: '서울특별시',
-    kpxRegionName: '서울',
+    kpxRegionName: '서울시',
     kmaGridX: 60,
     kmaGridY: 127,
     lat: '37.566535',
@@ -34,7 +36,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'BUSAN',
     regionName: '부산광역시',
-    kpxRegionName: '부산',
+    kpxRegionName: '부산시',
     kmaGridX: 98,
     kmaGridY: 76,
     lat: '35.179554',
@@ -45,7 +47,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'DAEGU',
     regionName: '대구광역시',
-    kpxRegionName: '대구',
+    kpxRegionName: '대구시',
     kmaGridX: 89,
     kmaGridY: 90,
     lat: '35.866650',
@@ -56,7 +58,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'INCHEON',
     regionName: '인천광역시',
-    kpxRegionName: '인천',
+    kpxRegionName: '인천시',
     kmaGridX: 55,
     kmaGridY: 124,
     lat: '37.456256',
@@ -67,7 +69,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'GWANGJU',
     regionName: '광주광역시',
-    kpxRegionName: '광주',
+    kpxRegionName: '광주시',
     kmaGridX: 58,
     kmaGridY: 74,
     lat: '35.159545',
@@ -78,7 +80,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'DAEJEON',
     regionName: '대전광역시',
-    kpxRegionName: '대전',
+    kpxRegionName: '대전시',
     kmaGridX: 67,
     kmaGridY: 100,
     lat: '36.350412',
@@ -89,7 +91,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'ULSAN',
     regionName: '울산광역시',
-    kpxRegionName: '울산',
+    kpxRegionName: '울산시',
     kmaGridX: 102,
     kmaGridY: 84,
     lat: '35.538377',
@@ -100,7 +102,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'SEJONG',
     regionName: '세종특별자치시',
-    kpxRegionName: '세종',
+    kpxRegionName: '세종시',
     kmaGridX: 66,
     kmaGridY: 103,
     lat: '36.480098',
@@ -111,7 +113,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'GYEONGGI',
     regionName: '경기도',
-    kpxRegionName: '경기',
+    kpxRegionName: '경기도',
     kmaGridX: 60,
     kmaGridY: 120,
     lat: '37.275119',
@@ -122,7 +124,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'GANGWON',
     regionName: '강원특별자치도',
-    kpxRegionName: '강원',
+    kpxRegionName: '강원도',
     kmaGridX: 73,
     kmaGridY: 134,
     lat: '37.881315',
@@ -133,7 +135,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'CHUNGBUK',
     regionName: '충청북도',
-    kpxRegionName: '충북',
+    kpxRegionName: '충청북도',
     kmaGridX: 69,
     kmaGridY: 107,
     lat: '36.635680',
@@ -144,7 +146,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'CHUNGNAM',
     regionName: '충청남도',
-    kpxRegionName: '충남',
+    kpxRegionName: '충청남도',
     kmaGridX: 55,
     kmaGridY: 107,
     lat: '36.658826',
@@ -155,7 +157,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'JEONBUK',
     regionName: '전북특별자치도',
-    kpxRegionName: '전북',
+    kpxRegionName: '전라북도',
     kmaGridX: 63,
     kmaGridY: 89,
     lat: '35.820196',
@@ -166,7 +168,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'JEONNAM',
     regionName: '전라남도',
-    kpxRegionName: '전남',
+    kpxRegionName: '전라남도',
     kmaGridX: 51,
     kmaGridY: 67,
     lat: '34.816084',
@@ -177,7 +179,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'GYEONGBUK',
     regionName: '경상북도',
-    kpxRegionName: '경북',
+    kpxRegionName: '경상북도',
     kmaGridX: 87,
     kmaGridY: 106,
     lat: '36.576032',
@@ -188,7 +190,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'GYEONGNAM',
     regionName: '경상남도',
-    kpxRegionName: '경남',
+    kpxRegionName: '경상남도',
     kmaGridX: 91,
     kmaGridY: 77,
     lat: '35.238294',
@@ -199,7 +201,7 @@ export const sidoRegionSeedRows: RegionSeedRow[] = [
   {
     regionCode: 'JEJU',
     regionName: '제주특별자치도',
-    kpxRegionName: '제주',
+    kpxRegionName: '제주도',
     kmaGridX: 52,
     kmaGridY: 38,
     lat: '33.489011',
