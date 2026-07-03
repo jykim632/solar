@@ -1,7 +1,8 @@
 'use client';
 
-import { Bell, Building2, ChevronDown, CircleHelp } from 'lucide-react';
+import { Bell, Building2, ChevronDown } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { GlossaryButton } from './glossary-drawer';
 
 /**
  * 헤더 (56px) — 목업 v4 이식. 조직 전환/알림/용어사전은 후속 이슈에서
@@ -32,15 +33,7 @@ export function Header({ userName }: { userName: string }) {
       </button>
 
       <div className="ml-auto flex items-center gap-2">
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
-          style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
-          title="용어 사전 (준비 중)"
-        >
-          <CircleHelp size={14} strokeWidth={2} />
-          도움말
-        </button>
+        <GlossaryButton />
         <button
           type="button"
           className="rounded-lg p-2 hover:bg-black/5 dark:hover:bg-white/5"

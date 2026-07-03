@@ -3,25 +3,57 @@
 import { useMemo, useState } from 'react';
 import type { EChartsOption } from 'echarts';
 import { ChartContainer } from '@/components/charts/chart-container';
+import { KoreaMap } from '@/components/charts/korea-map';
+import type { KoreaMapDatum } from '@/components/charts/korea-map-client';
 
 /**
  * 발전량·가격 대시보드 패널 (목업 v4 이식, solar-742).
- * 기간 preset/지역/시장 필터 + 발전량 추이 + SMP(소스 검증 중) + REC 가격.
- * 예시 데이터 — 실데이터 연결은 r32.4/r32.5에서 useQuery + bffFetch로 교체.
+ * choropleth 지도 클릭 ↔ 지역 select 양방향 동기화. 예시 데이터 —
+ * 실데이터 연결은 r32.4/r32.5에서 useQuery + bffFetch로 교체.
  */
-const REGIONS = [
-  '경기',
-  '강원',
-  '충북',
-  '충남',
-  '전북',
-  '전남',
-  '경북',
-  '경남',
-  '제주',
+const PERIODS = ['7일', '30일', '90일'] as const;
+
+// GeoJSON name(구명칭) ↔ 짧은 표시명. 목업 v4의 REGION_GEN/REGION_SHORT.
+const REGION_OPTIONS = [
+  { geoName: '경기도', short: '경기' },
+  { geoName: '강원도', short: '강원' },
+  { geoName: '충청북도', short: '충북' },
+  { geoName: '충청남도', short: '충남' },
+  { geoName: '전라북도', short: '전북' },
+  { geoName: '전라남도', short: '전남' },
+  { geoName: '경상북도', short: '경북' },
+  { geoName: '경상남도', short: '경남' },
+  { geoName: '제주특별자치도', short: '제주' },
+  { geoName: '서울특별시', short: '서울' },
+  { geoName: '부산광역시', short: '부산' },
+  { geoName: '대구광역시', short: '대구' },
+  { geoName: '인천광역시', short: '인천' },
+  { geoName: '광주광역시', short: '광주' },
+  { geoName: '대전광역시', short: '대전' },
+  { geoName: '울산광역시', short: '울산' },
+  { geoName: '세종특별자치시', short: '세종' },
 ] as const;
 
-const PERIODS = ['7일', '30일', '90일'] as const;
+// 예시 지도 데이터 (목업 v4 더미 — 실데이터는 r32.4에서).
+const DEMO_MAP_DATA: KoreaMapDatum[] = [
+  { name: '전라남도', value: 5840 },
+  { name: '경상북도', value: 4920 },
+  { name: '전라북도', value: 4310 },
+  { name: '충청남도', value: 4150 },
+  { name: '경기도', value: 3480 },
+  { name: '경상남도', value: 3120 },
+  { name: '강원도', value: 2660 },
+  { name: '충청북도', value: 2380 },
+  { name: '제주특별자치도', value: 1240 },
+  { name: '인천광역시', value: 610 },
+  { name: '세종특별자치시', value: 420 },
+  { name: '울산광역시', value: 390 },
+  { name: '대구광역시', value: 350 },
+  { name: '광주광역시', value: 330 },
+  { name: '부산광역시', value: 310 },
+  { name: '대전광역시', value: 210 },
+  { name: '서울특별시', value: 90 },
+];
 
 function demoDaily(days: number, base: number, amp: number): { labels: string[]; values: number[] } {
   const labels: string[] = [];
@@ -38,7 +70,10 @@ function demoDaily(days: number, base: number, amp: number): { labels: string[];
 
 export function MarketPanels() {
   const [period, setPeriod] = useState<(typeof PERIODS)[number]>('30일');
-  const [region, setRegion] = useState<(typeof REGIONS)[number]>('경기');
+  const [regionGeoName, setRegionGeoName] = useState<string>('경기도');
+
+  const regionShort =
+    REGION_OPTIONS.find((r) => r.geoName === regionGeoName)?.short ?? regionGeoName;
 
   const gen = useMemo(() => demoDaily(30, 3800, 1000), []);
   const rec = useMemo(() => demoDaily(10, 74500, 400), []);
@@ -103,9 +138,11 @@ export function MarketPanels() {
             </button>
           ))}
         </div>
-        <select value={region} onChange={(e) => setRegion(e.target.value as (typeof REGIONS)[number])}>
-          {REGIONS.map((r) => (
-            <option key={r}>{r}</option>
+        <select value={regionGeoName} onChange={(e) => setRegionGeoName(e.target.value)}>
+          {REGION_OPTIONS.map((r) => (
+            <option key={r.geoName} value={r.geoName}>
+              {r.short}
+            </option>
           ))}
         </select>
         <select defaultValue="육지">
@@ -116,12 +153,35 @@ export function MarketPanels() {
 
       <div className="card p-4">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold">태양광 발전량 — {region} (예시)</h2>
+          <h2 className="text-sm font-semibold">지역별 태양광 발전량 (예시)</h2>
           <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
             일 합계 · MWh
           </span>
         </div>
-        <ChartContainer option={genOption} height={280} ariaLabel={`${region} 태양광 발전량 추이`} />
+        <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+          <div>
+            <KoreaMap
+              data={DEMO_MAP_DATA}
+              max={6000}
+              selectedName={regionGeoName}
+              onSelect={(geoName) => setRegionGeoName(geoName)}
+              height={400}
+            />
+            <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+              지도에서 지역을 클릭하면 오른쪽 추이가 해당 지역으로 바뀝니다.
+            </p>
+          </div>
+          <div>
+            <div className="flex items-baseline justify-between">
+              <h3 className="text-sm font-medium">태양광 발전량 — {regionShort}</h3>
+            </div>
+            <ChartContainer
+              option={genOption}
+              height={360}
+              ariaLabel={`${regionShort} 태양광 발전량 추이`}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
