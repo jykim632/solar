@@ -7,3 +7,5 @@
  * loose, source-shaped external payloads never leak into the API contract.
  */
 export * from './datagokr.js';
+export * from './kpx-pv-gen.js';
+export * from './kpx-rec.js';
