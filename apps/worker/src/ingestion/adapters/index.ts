@@ -1,13 +1,17 @@
-import type { DataGoKrAdapter, DatasourceKey } from '../core.js';
+import type { DatasourceKey, IngestionAdapter } from '../core.js';
+import { kmaSolarIrradianceAdapter } from './kma-solar-irradiance.js';
+import { kmaVilageFcstAdapter } from './kma-vilage-fcst.js';
 import { kpxPvGenerationAdapter } from './kpx-pv-gen.js';
 import { kpxRecMarketAdapter } from './kpx-rec.js';
 
-const adapters = new Map<DatasourceKey, DataGoKrAdapter>([
+const adapters = new Map<DatasourceKey, IngestionAdapter>([
   ['kpx-pv-gen', kpxPvGenerationAdapter],
   ['kpx-rec', kpxRecMarketAdapter],
+  ['kma-vilage-fcst', kmaVilageFcstAdapter],
+  ['kma-solar-irradiance', kmaSolarIrradianceAdapter],
 ]);
 
-export function getAdapter(key: string): DataGoKrAdapter {
+export function getAdapter(key: string): IngestionAdapter {
   const adapter = adapters.get(key as DatasourceKey);
 
   if (!adapter) {

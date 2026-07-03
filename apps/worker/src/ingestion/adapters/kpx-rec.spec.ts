@@ -8,6 +8,7 @@ const context: TransformContext = {
   ingestionRunId: 20n,
   ymd: '20260702',
   regionMap: new Map(),
+  regionRows: [],
 };
 
 // data/samples/rec-latest-2026-07-03.json의 실측값 기반.

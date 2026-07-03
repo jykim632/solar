@@ -4,6 +4,8 @@ import {
   createRawStoreFromEnv,
   resolveRequestedDateRange,
   runIngestion,
+  type ApiKeyName,
+  type IngestionApiKeys,
   type IngestionSummary,
 } from './ingestion/core.js';
 
@@ -18,13 +20,13 @@ export interface IngestEvent {
 }
 
 export async function ingest(event: IngestEvent): Promise<IngestionSummary> {
-  const apiKey = process.env.DATA_GO_KR_API_KEY;
-  if (!apiKey) {
-    throw new Error('DATA_GO_KR_API_KEY is required.');
-  }
-
   const adapter = getAdapter(event.datasource);
-  const dateRange = resolveRequestedDateRange({ from: event.from, to: event.to });
+  const apiKeys = loadApiKeys(adapter.requiredApiKeys, process.env);
+  const dateRange = resolveRequestedDateRange(
+    { from: event.from, to: event.to },
+    new Date(),
+    adapter.dateRangeMode ?? 'kst-day',
+  );
   const rawStore = createRawStoreFromEnv(process.env);
 
   return runIngestion({
@@ -32,8 +34,28 @@ export async function ingest(event: IngestEvent): Promise<IngestionSummary> {
     adapter,
     rawStore,
     dateRange,
-    apiKey,
+    apiKeys,
   });
+}
+
+function loadApiKeys(required: readonly ApiKeyName[], env: NodeJS.ProcessEnv): IngestionApiKeys {
+  const out: IngestionApiKeys = {};
+
+  for (const key of required) {
+    if (key === 'dataGoKr') {
+      if (!env.DATA_GO_KR_API_KEY) {
+        throw new Error('DATA_GO_KR_API_KEY is required.');
+      }
+      out.dataGoKr = env.DATA_GO_KR_API_KEY;
+    } else {
+      if (!env.KMA_API_KEY) {
+        throw new Error('KMA_API_KEY is required.');
+      }
+      out.kmaApiHub = env.KMA_API_KEY;
+    }
+  }
+
+  return out;
 }
 
 export async function closeIngestionResources(): Promise<void> {

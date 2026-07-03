@@ -160,6 +160,7 @@ export const kpxRecMarketAdapter: DataGoKrAdapter = {
   key: 'kpx-rec',
   datasourceName: 'kpx-rec',
   provider: 'KPX',
+  requiredApiKeys: ['dataGoKr'],
   defaultNumOfRows: 500,
 
   buildUrl(input) {

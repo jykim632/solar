@@ -8,6 +8,7 @@ const context: TransformContext = {
   ingestionRunId: 10n,
   ymd: '20251231',
   regionMap: new Map([['서울시', 'SEOUL']]),
+  regionRows: [],
 };
 
 describe('transformKpxPvGenerationRows', () => {

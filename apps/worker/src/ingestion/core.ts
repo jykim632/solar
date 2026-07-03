@@ -26,9 +26,27 @@ import { DATA_GO_KR_OK, DataGoKrEnvelopeSchema } from '@solar/ingestion-schemas'
  * 멱등성 2중 보장(§8.2): raw_object는 (datasource_id, content_hash) UNIQUE +
  * onConflictDoNothing, mart는 natural key onConflictDoUpdate upsert.
  */
-export type DatasourceKey = 'kpx-pv-gen' | 'kpx-rec';
+export type DatasourceKey = 'kpx-pv-gen' | 'kpx-rec' | 'kma-vilage-fcst' | 'kma-solar-irradiance';
 export type IngestionRunStatus = 'running' | 'success' | 'failed' | 'partial';
 export type DataQualityStatus = 'pass' | 'warn' | 'fail';
+export type ApiKeyName = 'dataGoKr' | 'kmaApiHub';
+/** ymd 해석 기준. KPX/단기예보=KST 일자, 위성 일사량=UTC 일자(§6.4). */
+export type DateRangeMode = 'kst-day' | 'utc-day';
+
+export interface IngestionApiKeys {
+  dataGoKr?: string;
+  kmaApiHub?: string;
+}
+
+export interface IngestionRegionRow {
+  regionCode: string;
+  regionName: string;
+  kpxRegionName: string | null;
+  kmaGridX: number | null;
+  kmaGridY: number | null;
+  lat: string | null;
+  lon: string | null;
+}
 
 export interface DataQualityCheckResult {
   checkName: string;
@@ -48,6 +66,7 @@ export interface TransformContext {
   ingestionRunId: bigint;
   ymd: string;
   regionMap: ReadonlyMap<string, string>;
+  regionRows: readonly IngestionRegionRow[];
 }
 
 export interface TransformResult {
@@ -60,6 +79,28 @@ export interface QualityCheckInput {
   rawRows: unknown[];
   martRows: unknown[];
   issues: TransformIssue[];
+  regionRows: readonly IngestionRegionRow[];
+}
+
+export interface SaveRawResponseInput {
+  url: string;
+  body: string;
+  httpStatus: number;
+  contentType?: string;
+  fileExtension?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FetchIntervalContext {
+  apiKeys: IngestionApiKeys;
+  ymd: string;
+  regionRows: readonly IngestionRegionRow[];
+  fetchImpl: typeof fetch;
+  saveRaw(input: SaveRawResponseInput): Promise<void>;
+}
+
+export interface FetchIntervalResult {
+  rows: unknown[];
 }
 
 export interface AdapterRequestInput {
@@ -69,16 +110,32 @@ export interface AdapterRequestInput {
   numOfRows: number;
 }
 
-export interface DataGoKrAdapter {
+/**
+ * 수집 adapter 공통 인터페이스. 두 가지 fetch 경로:
+ * - data.go.kr JSON: buildUrl/parseRows/defaultNumOfRows 정의 → core의
+ *   기본 페이지네이션 루프(fetchDataGoKrInterval)가 처리.
+ * - 커스텀(비 JSON, 지역 루프, 다른 키): fetchInterval을 직접 구현.
+ *   raw-before-validate 불변식은 core가 주입하는 saveRaw 콜백으로 유지.
+ */
+export interface IngestionAdapter {
   key: DatasourceKey;
   datasourceName: string;
   provider: string;
-  defaultNumOfRows: number;
-  buildUrl(input: AdapterRequestInput): string;
-  parseRows(items: unknown[]): unknown[];
+  requiredApiKeys: readonly ApiKeyName[];
+  dateRangeMode?: DateRangeMode;
+  defaultNumOfRows?: number;
+  fetchInterval?(context: FetchIntervalContext): Promise<FetchIntervalResult>;
+  buildUrl?(input: AdapterRequestInput): string;
+  parseRows?(items: unknown[]): unknown[];
   transformRows(rows: unknown[], context: TransformContext): TransformResult;
   qualityChecks(input: QualityCheckInput): DataQualityCheckResult[];
   upsertMart(db: Db, rows: unknown[]): Promise<number>;
+}
+
+export interface DataGoKrAdapter extends IngestionAdapter {
+  defaultNumOfRows: number;
+  buildUrl(input: AdapterRequestInput): string;
+  parseRows(items: unknown[]): unknown[];
 }
 
 export interface RequestedDateRange {
@@ -91,10 +148,10 @@ export interface RequestedDateRange {
 
 export interface RunIngestionInput {
   db: Db;
-  adapter: DataGoKrAdapter;
+  adapter: IngestionAdapter;
   rawStore: RawStore;
   dateRange: RequestedDateRange;
-  apiKey: string;
+  apiKeys: IngestionApiKeys;
   fetchImpl?: typeof fetch;
 }
 
@@ -117,6 +174,7 @@ export interface RawStoreSaveInput {
   contentHash: string;
   body: string;
   contentType?: string;
+  fileExtension?: string;
 }
 
 export interface RawStoreSaveResult {
@@ -209,26 +267,63 @@ export function enumerateYmdRange(fromYmd: string, toYmd: string): string[] {
   return dates;
 }
 
+/** UTC 자정(해당 날짜 00:00 UTC). utc-day 모드용. */
+export function ymdToUtcStartDate(ymd: string): Date {
+  const { year, month, day } = parseYmd(ymd);
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+}
+
+export function toUtcYmd(date = new Date()): string {
+  return date.toISOString().slice(0, 10).replaceAll('-', '');
+}
+
+/** KST 날짜+HHMM의 UTC 시각. */
+export function kstYmdHmToUtcDate(ymd: string, hhmm: string): Date {
+  const { year, month, day } = parseYmd(ymd);
+  const { hour, minute } = parseHhmm(hhmm);
+  return new Date(Date.UTC(year, month - 1, day, hour - 9, minute, 0, 0));
+}
+
+/** UTC 날짜+HHMM의 UTC 시각. */
+export function utcYmdHmToUtcDate(ymd: string, hhmm: string): Date {
+  const { year, month, day } = parseYmd(ymd);
+  const { hour, minute } = parseHhmm(hhmm);
+  return new Date(Date.UTC(year, month - 1, day, hour, minute, 0, 0));
+}
+
+export function addMinutes(date: Date, minutes: number): Date {
+  return new Date(date.getTime() + minutes * 60 * 1000);
+}
+
+function parseHhmm(hhmm: string): { hour: number; minute: number } {
+  if (!/^([01]\d|2[0-3])[0-5]\d$/.test(hhmm)) {
+    throw new Error('time must be HHMM.');
+  }
+  return { hour: Number(hhmm.slice(0, 2)), minute: Number(hhmm.slice(2, 4)) };
+}
+
 /**
- * --from/--to는 KST YYYYMMDD **양끝 포함**. ops_ingestion_run에는
- * requested_from = from 00:00 KST, requested_to = (to+1일) 00:00 KST(배타)로
- * 기록한다. 둘 다 생략하면 어제(KST) 하루.
+ * --from/--to는 YYYYMMDD **양끝 포함**. mode='kst-day'(기본)면 KST 일자,
+ * 'utc-day'면 UTC 일자로 해석한다. ops_ingestion_run에는 requested_from =
+ * from 00:00, requested_to = (to+1일) 00:00(배타)로 기록. 생략 시 어제 하루.
  */
 export function resolveRequestedDateRange(
   input: { from?: string; to?: string },
   now = new Date(),
+  mode: DateRangeMode = 'kst-day',
 ): RequestedDateRange {
-  const defaultYmd = addDaysToYmd(toKstYmd(now), -1);
+  const defaultYmd = addDaysToYmd(mode === 'utc-day' ? toUtcYmd(now) : toKstYmd(now), -1);
   const fromYmd = input.from ?? input.to ?? defaultYmd;
   const toYmd = input.to ?? input.from ?? defaultYmd;
   const ymds = enumerateYmdRange(fromYmd, toYmd);
+  const start = mode === 'utc-day' ? ymdToUtcStartDate : ymdToKstStartUtcDate;
 
   return {
     fromYmd,
     toYmd,
     ymds,
-    requestedFrom: ymdToKstStartUtcDate(fromYmd),
-    requestedTo: ymdToKstStartUtcDate(addDaysToYmd(toYmd, 1)),
+    requestedFrom: start(fromYmd),
+    requestedTo: start(addDaysToYmd(toYmd, 1)),
   };
 }
 
@@ -242,7 +337,8 @@ export class LocalFsRawStore implements RawStore {
 
   async save(input: RawStoreSaveInput): Promise<RawStoreSaveResult> {
     const datasourceSegment = sanitizePathSegment(input.datasourceName);
-    const fileName = `page-${String(input.pageNo).padStart(4, '0')}-${input.contentHash}.json`;
+    const ext = input.fileExtension ?? 'json';
+    const fileName = `page-${String(input.pageNo).padStart(4, '0')}-${input.contentHash}.${ext}`;
     const dir = path.join(this.rootDir, datasourceSegment, input.logicalDate);
     const filePath = path.join(dir, fileName);
 
@@ -264,10 +360,11 @@ export class S3RawStore implements RawStore {
   }
 
   async save(input: RawStoreSaveInput): Promise<RawStoreSaveResult> {
+    const ext = input.fileExtension ?? 'json';
     const key = path.posix.join(
       input.datasourceName,
       input.logicalDate,
-      `page-${String(input.pageNo).padStart(4, '0')}-${input.contentHash}.json`,
+      `page-${String(input.pageNo).padStart(4, '0')}-${input.contentHash}.${ext}`,
     );
 
     throw new Error(
@@ -290,15 +387,23 @@ export function createRawStoreFromEnv(env: NodeJS.ProcessEnv = process.env): Raw
   throw new Error(`Unsupported RAW_STORE "${mode}". Expected "local" or "s3".`);
 }
 
-/** region.kpx_region_name → region_code 역방향 매핑 (검증된 문자열, §9.2). */
-export async function loadKpxRegionMap(db: Db): Promise<Map<string, string>> {
-  const rows = await db
+/** region 전체 로드 — adapter가 nx/ny·lat/lon 루프에 사용. run당 1회. */
+export async function loadRegionRows(db: Db): Promise<IngestionRegionRow[]> {
+  return db
     .select({
       regionCode: region.regionCode,
+      regionName: region.regionName,
       kpxRegionName: region.kpxRegionName,
+      kmaGridX: region.kmaGridX,
+      kmaGridY: region.kmaGridY,
+      lat: region.lat,
+      lon: region.lon,
     })
     .from(region);
+}
 
+/** region.kpx_region_name → region_code 역방향 매핑 (검증된 문자열, §9.2). */
+export function buildKpxRegionMap(rows: readonly IngestionRegionRow[]): Map<string, string> {
   const map = new Map<string, string>();
 
   for (const row of rows) {
@@ -313,7 +418,8 @@ export async function loadKpxRegionMap(db: Db): Promise<Map<string, string>> {
 export async function runIngestion(input: RunIngestionInput): Promise<IngestionSummary> {
   const fetchImpl = input.fetchImpl ?? fetch;
   const datasourceId = await findDatasourceId(input.db, input.adapter);
-  const regionMap = await loadKpxRegionMap(input.db);
+  const regionRows = await loadRegionRows(input.db);
+  const regionMap = buildKpxRegionMap(regionRows);
 
   const [runRow] = await input.db
     .insert(opsIngestionRun)
@@ -341,11 +447,12 @@ export async function runIngestion(input: RunIngestionInput): Promise<IngestionS
         db: input.db,
         adapter: input.adapter,
         rawStore: input.rawStore,
-        apiKey: input.apiKey,
+        apiKeys: input.apiKeys,
         datasourceId,
         ingestionRunId: runRow.id,
         ymd,
         regionMap,
+        regionRows,
         fetchImpl,
       });
 
@@ -402,21 +509,120 @@ export async function runIngestion(input: RunIngestionInput): Promise<IngestionS
 
 async function ingestOneInterval(input: {
   db: Db;
-  adapter: DataGoKrAdapter;
+  adapter: IngestionAdapter;
   rawStore: RawStore;
-  apiKey: string;
+  apiKeys: IngestionApiKeys;
   datasourceId: number;
   ingestionRunId: bigint;
   ymd: string;
   regionMap: ReadonlyMap<string, string>;
+  regionRows: readonly IngestionRegionRow[];
   fetchImpl: typeof fetch;
 }): Promise<{ ok: true; rowCount: number } | { ok: false; errorMessage: string }> {
-  const rawRows: unknown[] = [];
+  // raw-before-validate 불변식은 core가 소유한다(§8.2 — 에러 응답도 저장).
+  // adapter는 HTTP 응답마다 이 콜백만 호출하면 된다.
+  let rawRequestNo = 0;
+
+  const saveRaw = async (raw: SaveRawResponseInput): Promise<void> => {
+    rawRequestNo += 1;
+    const contentHash = sha256(raw.body);
+
+    const saved = await input.rawStore.save({
+      datasourceName: input.adapter.datasourceName,
+      logicalDate: input.ymd,
+      pageNo: rawRequestNo,
+      contentHash,
+      body: raw.body,
+      contentType: raw.contentType,
+      fileExtension: raw.fileExtension,
+    });
+
+    await recordRawObject(input.db, {
+      datasourceId: input.datasourceId,
+      ingestionRunId: input.ingestionRunId,
+      objectPath: saved.objectPath,
+      contentType: raw.contentType,
+      contentHash,
+      sourceUrl: redactSecretQueryParams(raw.url),
+      fetchedAt: new Date(),
+      metadata: {
+        ...(raw.metadata ?? {}),
+        ymd: input.ymd,
+        requestNo: rawRequestNo,
+        httpStatus: raw.httpStatus,
+      },
+    });
+  };
+
+  const fetched = input.adapter.fetchInterval
+    ? await input.adapter.fetchInterval({
+        apiKeys: input.apiKeys,
+        ymd: input.ymd,
+        regionRows: input.regionRows,
+        fetchImpl: input.fetchImpl,
+        saveRaw,
+      })
+    : await fetchDataGoKrInterval({
+        adapter: assertDataGoKrAdapter(input.adapter),
+        apiKeys: input.apiKeys,
+        ymd: input.ymd,
+        fetchImpl: input.fetchImpl,
+        saveRaw,
+      });
+
+  const rawRows = fetched.rows;
+
+  const transformed = input.adapter.transformRows(rawRows, {
+    datasourceId: input.datasourceId,
+    ingestionRunId: input.ingestionRunId,
+    ymd: input.ymd,
+    regionMap: input.regionMap,
+    regionRows: input.regionRows,
+  });
+
+  const checks = input.adapter.qualityChecks({
+    ymd: input.ymd,
+    rawRows,
+    martRows: transformed.rows,
+    issues: transformed.issues,
+    regionRows: input.regionRows,
+  });
+
+  await insertQualityChecks(input.db, input.ingestionRunId, checks);
+
+  const failChecks = checks.filter((check) => check.status === 'fail');
+  if (failChecks.length > 0) {
+    return {
+      ok: false,
+      errorMessage: `${input.ymd}: quality checks failed (${failChecks
+        .map((c) => c.checkName)
+        .join(', ')})`,
+    };
+  }
+
+  const rowCount = await input.adapter.upsertMart(input.db, transformed.rows);
+  return { ok: true, rowCount };
+}
+
+/** data.go.kr JSON envelope + pageNo 페이지네이션 기본 fetch 경로. */
+async function fetchDataGoKrInterval(input: {
+  adapter: DataGoKrAdapter;
+  apiKeys: IngestionApiKeys;
+  ymd: string;
+  fetchImpl: typeof fetch;
+  saveRaw(input: SaveRawResponseInput): Promise<void>;
+}): Promise<FetchIntervalResult> {
+  const apiKey = input.apiKeys.dataGoKr;
+  if (!apiKey) {
+    throw new Error('DATA_GO_KR_API_KEY is required.');
+  }
+
+  const rows: unknown[] = [];
   let pageNo = 1;
 
   while (true) {
     const url = input.adapter.buildUrl({
-      apiKey: input.apiKey,
+      apiKey,
       ymd: input.ymd,
       pageNo,
       numOfRows: input.adapter.defaultNumOfRows,
@@ -426,32 +632,15 @@ async function ingestOneInterval(input: {
       headers: { 'user-agent': 'solar-worker/0.1' },
     });
     const bodyText = await response.text();
-    const contentHash = sha256(bodyText);
     const contentType = response.headers.get('content-type') ?? undefined;
 
-    // 원본은 검증 전에 항상 저장한다 (§8.2 — 에러 응답도 raw로 남긴다).
-    const saved = await input.rawStore.save({
-      datasourceName: input.adapter.datasourceName,
-      logicalDate: input.ymd,
-      pageNo,
-      contentHash,
+    await input.saveRaw({
+      url,
       body: bodyText,
+      httpStatus: response.status,
       contentType,
-    });
-
-    await recordRawObject(input.db, {
-      datasourceId: input.datasourceId,
-      ingestionRunId: input.ingestionRunId,
-      objectPath: saved.objectPath,
-      contentType,
-      contentHash,
-      sourceUrl: redactServiceKey(url),
-      fetchedAt: new Date(),
-      metadata: {
-        ymd: input.ymd,
-        pageNo,
-        httpStatus: response.status,
-      },
+      fileExtension: 'json',
+      metadata: { pageNo },
     });
 
     if (!response.ok) {
@@ -479,13 +668,12 @@ async function ingestOneInterval(input: {
 
     const body = envelope.response.body;
     const items = body?.items?.item ?? [];
-    const parsedRows = input.adapter.parseRows(items);
-    rawRows.push(...parsedRows);
+    rows.push(...input.adapter.parseRows(items));
 
-    const totalCount = body?.totalCount ?? rawRows.length;
+    const totalCount = body?.totalCount ?? rows.length;
     const numOfRows = body?.numOfRows ?? input.adapter.defaultNumOfRows;
 
-    if (totalCount === 0 || items.length === 0 || rawRows.length >= totalCount) {
+    if (totalCount === 0 || items.length === 0 || rows.length >= totalCount) {
       break;
     }
 
@@ -497,37 +685,17 @@ async function ingestOneInterval(input: {
     }
   }
 
-  const transformed = input.adapter.transformRows(rawRows, {
-    datasourceId: input.datasourceId,
-    ingestionRunId: input.ingestionRunId,
-    ymd: input.ymd,
-    regionMap: input.regionMap,
-  });
-
-  const checks = input.adapter.qualityChecks({
-    ymd: input.ymd,
-    rawRows,
-    martRows: transformed.rows,
-    issues: transformed.issues,
-  });
-
-  await insertQualityChecks(input.db, input.ingestionRunId, checks);
-
-  const failChecks = checks.filter((check) => check.status === 'fail');
-  if (failChecks.length > 0) {
-    return {
-      ok: false,
-      errorMessage: `${input.ymd}: quality checks failed (${failChecks
-        .map((c) => c.checkName)
-        .join(', ')})`,
-    };
-  }
-
-  const rowCount = await input.adapter.upsertMart(input.db, transformed.rows);
-  return { ok: true, rowCount };
+  return { rows };
 }
 
-async function findDatasourceId(db: Db, adapter: DataGoKrAdapter): Promise<number> {
+function assertDataGoKrAdapter(adapter: IngestionAdapter): DataGoKrAdapter {
+  if (!adapter.buildUrl || !adapter.parseRows || !adapter.defaultNumOfRows) {
+    throw new Error(`Adapter ${adapter.key} must define fetchInterval or data.go.kr methods.`);
+  }
+  return adapter as DataGoKrAdapter;
+}
+
+async function findDatasourceId(db: Db, adapter: IngestionAdapter): Promise<number> {
   const rows = await db
     .select({ id: datasource.id })
     .from(datasource)
@@ -597,9 +765,13 @@ function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function redactServiceKey(url: string): string {
+function redactSecretQueryParams(url: string): string {
   const parsed = new URL(url);
-  parsed.searchParams.set('serviceKey', 'REDACTED');
+  for (const key of ['serviceKey', 'authKey']) {
+    if (parsed.searchParams.has(key)) {
+      parsed.searchParams.set(key, 'REDACTED');
+    }
+  }
   return parsed.toString();
 }
 

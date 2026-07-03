@@ -155,6 +155,7 @@ export const kpxPvGenerationAdapter: DataGoKrAdapter = {
   key: 'kpx-pv-gen',
   datasourceName: 'kpx-pv-gen',
   provider: 'KPX',
+  requiredApiKeys: ['dataGoKr'],
   defaultNumOfRows: 500,
 
   buildUrl(input) {
