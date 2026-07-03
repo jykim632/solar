@@ -1,15 +1,6 @@
-import { MeProbe } from './me-probe';
+import { redirect } from 'next/navigation';
 
+/** 홈 → 첫 화면(전력수급 상황판)으로. walking-skeleton 검증은 /debug/me로 이동. */
 export default function HomePage() {
-  return (
-    <main style={{ padding: 24, fontFamily: 'system-ui, sans-serif', maxWidth: 880 }}>
-      <header style={{ marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 28 }}>Solar Market Intelligence</h1>
-        <p style={{ marginTop: 8, color: '#4b5563' }}>
-          공공데이터 기반 태양광 O&amp;M 분석 대시보드 (MVP) — 인증 walking skeleton.
-        </p>
-      </header>
-      <MeProbe />
-    </main>
-  );
+  redirect('/supply');
 }

@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+
+/**
+ * 디자인 토큰 — docs/design/layout-mockup.html v4 (확정 시안)의 토큰을
+ * 그대로 이식. dataviz reference palette 기반, light/dark 자동 전환.
+ */
+:root {
+  --page: #f9f9f7;
+  --surface-1: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --series-1: #2a78d6;
+  --series-2: #1baf7a;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --delta-good: #006300;
+  --delta-bad: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0d0d0d;
+    --surface-1: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --series-1: #3987e5;
+    --series-2: #199e70;
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --delta-good: #0ca30c;
+    --delta-bad: #e66767;
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface-1: var(--surface-1);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-grid: var(--grid);
+  --color-axis: var(--axis);
+  --color-border-token: var(--border);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-status-good: var(--status-good);
+  --color-status-warning: var(--status-warning);
+  --color-delta-good: var(--delta-good);
+  --color-delta-bad: var(--delta-bad);
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--page);
+  color: var(--text-primary);
+}
+
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
