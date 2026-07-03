@@ -7,6 +7,8 @@ import type { ApiEnv } from './config/env';
 async function bootstrap(): Promise<void> {
   const apiEnv = loadEnvOrExit();
   const app = await NestFactory.create(AppModule);
+  // DbModule의 pool.end()가 동작하려면 shutdown hook 활성화 필요.
+  app.enableShutdownHooks();
   // All routes under /api/v1 (developer_plan.md §10). Auth routes live in apps/web.
   app.setGlobalPrefix('api/v1');
   await app.listen(apiEnv.PORT);

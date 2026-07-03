@@ -17,6 +17,7 @@
     "@nestjs/platform-express": "11.1.6",
     "@solar/api-contracts": "workspace:*",
     "@solar/db": "workspace:*",
+    "drizzle-orm": "0.45.1",
     "jose": "6.2.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
