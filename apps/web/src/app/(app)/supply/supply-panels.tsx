@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { EChartsOption } from 'echarts';
 import { SupplyRealtimeResponseSchema, type SupplyRealtimeItem } from '@solar/api-contracts';
 import { ChartContainer } from '@/components/charts/chart-container';
+import { PageHeader } from '@/components/shell/page-header';
 import { Card } from '@/components/ui/card';
 import { ApiClientError, bffFetch } from '@/lib/bff-client';
 import { DEMO_ORGANIZATION_ID, queryKeys } from '@/lib/query-keys';
@@ -126,15 +127,33 @@ export function SupplyDashboard() {
 
   return (
     <>
+      <PageHeader
+        title="전력수급 상황판"
+        scopeBadge="전국 계통 기준"
+        description="지금 한국 전력계통이 얼마나 여유 있는지 보는 화면입니다. 예비율이 낮을수록 수급이 빠듯하고, 전력 도매가격(SMP)이 오르는 경향이 있습니다."
+        status={
+          query.isLoading ? (
+            <span className="text-text-muted">기준시각 불러오는 중…</span>
+          ) : stamp ? (
+            <span className="flex items-center gap-1.5">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: 'var(--status-success, #199e70)' }}
+              />
+              데이터 기준 {stamp} (KST) · 수집된 최신 값
+            </span>
+          ) : (
+            <span className="text-text-muted">수집된 데이터 없음</span>
+          )
+        }
+      />
+
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {kpi.map((k) => (
           <Card key={k.label} className="p-4">
             <div className="text-xs text-text-secondary">{k.label}</div>
             <div className="tabular mt-1 text-2xl font-semibold">
               {k.value} <span className="text-sm font-normal text-text-muted">{k.unit}</span>
-            </div>
-            <div className="mt-1 text-xs text-text-muted">
-              {stamp ? `${stamp} 기준 (KST)` : '수집 시작 후 표시'}
             </div>
           </Card>
         ))}
