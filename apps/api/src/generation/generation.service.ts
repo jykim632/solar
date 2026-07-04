@@ -1,12 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type {
+  FuelType,
   GenerationHourlyItem,
   GenerationHourlyQuery,
   GenerationHourlyResponse,
 } from '@solar/api-contracts';
 import type { Db } from '@solar/db';
 import { martGenerationHourly } from '@solar/db/schema';
-import { and, asc, eq, gt, gte, lt, lte, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, lt, lte, or, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { DB } from '../db/db.module';
 import {
@@ -44,7 +45,7 @@ export class GenerationService {
   constructor(@Inject(DB) private readonly db: Db) {}
 
   async getHourly(query: GenerationHourlyQuery): Promise<GenerationHourlyResponse> {
-    const latestSourceDate = await this.getLatestSourceDate();
+    const latestSourceDate = await this.getLatestSourceDate(query.fuelType);
     const plan = this.toPlan(query, latestSourceDate);
 
     if (plan.bucket === 'daily') {
@@ -93,12 +94,28 @@ export class GenerationService {
     }
   }
 
-  private async getLatestSourceDate(): Promise<string | null> {
-    const [row] = await this.db
+  private async getLatestSourceDate(fuelType: FuelType): Promise<string | null> {
+    // KPX가 최신 구간을 일부 지역만 먼저 게시할 수 있어(solar-04l: 5월 말
+    // JEJU 단독) 단순 max(source_date) 앵커는 지도 스냅샷을 부분 커버리지
+    // 일자에 고정시킨다. 해당 fuel_type에서 관측된 전체 지역 수를 채운
+    // 최신 일자를 앵커로 쓴다 — 명시적 from/to 조회는 부분 일자도 그대로 조회된다.
+    const observedRegionCount = this.db
       .select({
-        latestSourceDate: sql<string | null>`max(${martGenerationHourly.sourceDate})`,
+        value: sql`count(distinct ${martGenerationHourly.regionCode})`,
       })
-      .from(martGenerationHourly);
+      .from(martGenerationHourly)
+      .where(eq(martGenerationHourly.fuelType, fuelType));
+
+    const [row] = await this.db
+      .select({ latestSourceDate: martGenerationHourly.sourceDate })
+      .from(martGenerationHourly)
+      .where(eq(martGenerationHourly.fuelType, fuelType))
+      .groupBy(martGenerationHourly.sourceDate)
+      .having(
+        sql`count(distinct ${martGenerationHourly.regionCode}) = (${observedRegionCount})`,
+      )
+      .orderBy(desc(martGenerationHourly.sourceDate))
+      .limit(1);
 
     return row?.latestSourceDate ?? null;
   }
