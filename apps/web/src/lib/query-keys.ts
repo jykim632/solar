@@ -10,4 +10,17 @@ export const queryKeys = {
   organization,
   spikeHourlyGeneration: (organizationId: string) =>
     [...organization(organizationId), 'spike', 'hourly-generation'] as const,
+  // /market 대시보드 (solar-r32.4). 발전량 데이터가 ~2개월 지연이라 최신
+  // source_date를 먼저 조회(latest)해 모든 윈도우의 앵커로 쓴다.
+  generationLatest: (organizationId: string) =>
+    [...organization(organizationId), 'generation', 'latest'] as const,
+  // region/from/to를 key에 담아 지역·기간 변경 시 자동 refetch.
+  generationDaily: (organizationId: string, region: string, from: string, to: string) =>
+    [...organization(organizationId), 'generation', 'daily', region, from, to] as const,
+  // 최신일 지역별 스냅샷(지도). date는 latestAvailableSourceDate.
+  generationMapDaily: (organizationId: string, date: string) =>
+    [...organization(organizationId), 'generation', 'map-daily', date] as const,
+  // REC는 서버 기본 90일 창을 한 번 받고 기간 필터는 클라이언트에서 — area만 key에.
+  recDaily: (organizationId: string, area: string) =>
+    [...organization(organizationId), 'rec', 'daily', area] as const,
 };

@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/main.ts ingest",
     "ingest": "tsx src/main.ts ingest",
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
