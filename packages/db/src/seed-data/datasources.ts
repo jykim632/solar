@@ -26,6 +26,15 @@ export const datasourceSeedRows: DatasourceSeedRow[] = [
     note: 'REC 현물시장(화/목 개장). bzDd 필터. clsPrc=육지 기준 종가 관측 → TOTAL row에 저장.',
   },
   {
+    name: 'kpx-smp',
+    provider: 'KPX',
+    sourceType: 'openapi',
+    updateCycle: 'daily',
+    url: 'https://apis.data.go.kr/B552115/SmpWithForecastDemand/getSmpWithForecastDemand',
+    license: '공공데이터포털 이용허락범위 제한 없음',
+    note: 'SMP+수요예측(하루전 발전계획용, 15131225). 구 15076302 대체(§5.5 1순위). hour 1..24, areaName 육지/제주, smp 원/kWh. page1=최신(미래날짜 포함)→첫 페이지만 수집. 검증 2026-07-04.',
+  },
+  {
     name: 'kpx-supply',
     provider: 'KPX',
     sourceType: 'openapi',

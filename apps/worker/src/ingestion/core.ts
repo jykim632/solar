@@ -29,6 +29,7 @@ import { DATA_GO_KR_OK, DataGoKrEnvelopeSchema } from '@solar/ingestion-schemas'
 export type DatasourceKey =
   | 'kpx-pv-gen'
   | 'kpx-rec'
+  | 'kpx-smp'
   | 'kpx-supply'
   | 'kma-vilage-fcst'
   | 'kma-solar-irradiance';
