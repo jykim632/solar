@@ -26,7 +26,12 @@ import { DATA_GO_KR_OK, DataGoKrEnvelopeSchema } from '@solar/ingestion-schemas'
  * 멱등성 2중 보장(§8.2): raw_object는 (datasource_id, content_hash) UNIQUE +
  * onConflictDoNothing, mart는 natural key onConflictDoUpdate upsert.
  */
-export type DatasourceKey = 'kpx-pv-gen' | 'kpx-rec' | 'kma-vilage-fcst' | 'kma-solar-irradiance';
+export type DatasourceKey =
+  | 'kpx-pv-gen'
+  | 'kpx-rec'
+  | 'kpx-supply'
+  | 'kma-vilage-fcst'
+  | 'kma-solar-irradiance';
 export type IngestionRunStatus = 'running' | 'success' | 'failed' | 'partial';
 export type DataQualityStatus = 'pass' | 'warn' | 'fail';
 export type ApiKeyName = 'dataGoKr' | 'kmaApiHub';
@@ -282,6 +287,27 @@ export function kstYmdHmToUtcDate(ymd: string, hhmm: string): Date {
   const { year, month, day } = parseYmd(ymd);
   const { hour, minute } = parseHhmm(hhmm);
   return new Date(Date.UTC(year, month - 1, day, hour - 9, minute, 0, 0));
+}
+
+/** KST YYYYMMDDHHMMSS(14자리)의 UTC 시각. 초 단위까지 보존. */
+export function kstYmdHmsToUtcDate(ymdhms: string): Date {
+  if (!/^\d{14}$/.test(ymdhms)) {
+    throw new Error('datetime must be YYYYMMDDHHMMSS.');
+  }
+  const { year, month, day } = parseYmd(ymdhms.slice(0, 8));
+  const hour = Number(ymdhms.slice(8, 10));
+  const minute = Number(ymdhms.slice(10, 12));
+  const second = Number(ymdhms.slice(12, 14));
+  if (hour > 23 || minute > 59 || second > 59) {
+    throw new Error('datetime has an out-of-range time component.');
+  }
+  return new Date(Date.UTC(year, month - 1, day, hour - 9, minute, second, 0));
+}
+
+/** 시각을 N분 슬롯 경계로 내림(floor). observed_at → slot_at 정규화(§9.6). */
+export function floorToSlot(date: Date, slotMinutes: number): Date {
+  const ms = slotMinutes * 60 * 1000;
+  return new Date(Math.floor(date.getTime() / ms) * ms);
 }
 
 /** UTC 날짜+HHMM의 UTC 시각. */

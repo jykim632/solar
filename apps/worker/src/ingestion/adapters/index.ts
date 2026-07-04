@@ -3,10 +3,12 @@ import { kmaSolarIrradianceAdapter } from './kma-solar-irradiance.js';
 import { kmaVilageFcstAdapter } from './kma-vilage-fcst.js';
 import { kpxPvGenerationAdapter } from './kpx-pv-gen.js';
 import { kpxRecMarketAdapter } from './kpx-rec.js';
+import { kpxSupplyAdapter } from './kpx-supply.js';
 
 const adapters = new Map<DatasourceKey, IngestionAdapter>([
   ['kpx-pv-gen', kpxPvGenerationAdapter],
   ['kpx-rec', kpxRecMarketAdapter],
+  ['kpx-supply', kpxSupplyAdapter],
   ['kma-vilage-fcst', kmaVilageFcstAdapter],
   ['kma-solar-irradiance', kmaSolarIrradianceAdapter],
 ]);

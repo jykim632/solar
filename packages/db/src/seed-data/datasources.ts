@@ -26,6 +26,15 @@ export const datasourceSeedRows: DatasourceSeedRow[] = [
     note: 'REC 현물시장(화/목 개장). bzDd 필터. clsPrc=육지 기준 종가 관측 → TOTAL row에 저장.',
   },
   {
+    name: 'kpx-supply',
+    provider: 'KPX',
+    sourceType: 'openapi',
+    updateCycle: 'realtime-5min',
+    url: 'https://apis.data.go.kr/B552115/Sukub5mToday/getSukub5mToday',
+    license: '공공데이터포털 이용허락범위 제한 없음',
+    note: '현재전력수급현황 5분 슬롯(신규 _GW 15158704, 구 15056640 대체). baseDatetime=KST 14자리, 날짜필터 미작동→마지막 페이지만 수집, forecastLoad 실측구간 0.0(null 처리). 검증 2026-07-04.',
+  },
+  {
     name: 'kma-vilage-fcst',
     provider: 'KMA',
     sourceType: 'openapi',

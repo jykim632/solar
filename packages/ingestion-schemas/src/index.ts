@@ -10,3 +10,4 @@ export * from './datagokr.js';
 export * from './kma-vilage-fcst.js';
 export * from './kpx-pv-gen.js';
 export * from './kpx-rec.js';
+export * from './kpx-supply.js';

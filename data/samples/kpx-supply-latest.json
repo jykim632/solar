@@ -1,0 +1,51 @@
+{
+    "response": {
+        "header": {
+            "resultCode": "00",
+            "resultMsg": "OK"
+        },
+        "body": {
+            "dataType": "JSON",
+            "totalCount": "1446948",
+            "numOfRows": "5",
+            "pageNo": "289390",
+            "items": {
+                "item": [
+                    {
+                        "suppReservePwr": 34152.1992,
+                        "suppAbility": 98628.5,
+                        "baseDatetime": "20260704155500",
+                        "operReservePwr": 12060.0,
+                        "suppReserveRate": 52.9686,
+                        "forecastLoad": 0.0,
+                        "rn": 1446946,
+                        "operReserveRate": 18.2244,
+                        "currPwrTot": 64476.3008
+                    },
+                    {
+                        "suppReservePwr": 33733.1992,
+                        "suppAbility": 98592.5,
+                        "baseDatetime": "20260704160000",
+                        "operReservePwr": 11538.2998,
+                        "suppReserveRate": 52.0099,
+                        "forecastLoad": 0.0,
+                        "rn": 1446947,
+                        "operReserveRate": 17.3347,
+                        "currPwrTot": 64859.3008
+                    },
+                    {
+                        "suppReservePwr": 34126.5,
+                        "suppAbility": 98809.2031,
+                        "baseDatetime": "20260704160500",
+                        "operReservePwr": 11981.7998,
+                        "suppReserveRate": 52.7598,
+                        "forecastLoad": 0.0,
+                        "rn": 1446948,
+                        "operReserveRate": 18.1436,
+                        "currPwrTot": 64682.8008
+                    }
+                ]
+            }
+        }
+    }
+}
