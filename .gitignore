@@ -3,6 +3,9 @@
 .idea/
 .vscode/
 
+# Git worktrees (Claude Code native tool creates these here)
+.claude/worktrees/
+
 # Secrets and local environment
 .env
 .env.*
