@@ -3,6 +3,9 @@
 import { type FormEvent, Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export function LoginForm() {
   return (
@@ -45,34 +48,32 @@ function LoginFormInner() {
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ display: 'grid', gap: 12 }}>
-      <label style={{ display: 'grid', gap: 6 }}>
-        <span>Email</span>
-        <input
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          style={{ height: 38, padding: '0 10px' }}
-        />
-      </label>
+    <form onSubmit={onSubmit} className="grid gap-4">
+      <div className="grid gap-1.5">
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" name="email" type="email" autoComplete="email" required />
+      </div>
 
-      <label style={{ display: 'grid', gap: 6 }}>
-        <span>Password</span>
-        <input
+      <div className="grid gap-1.5">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
           name="password"
           type="password"
           autoComplete="current-password"
           required
-          style={{ height: 38, padding: '0 10px' }}
         />
-      </label>
+      </div>
 
-      {error && <p style={{ margin: 0, color: '#b91c1c' }}>{error}</p>}
+      {error && (
+        <p className="m-0 text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
 
-      <button type="submit" disabled={pending} style={{ height: 40 }}>
+      <Button type="submit" size="lg" disabled={pending}>
         {pending ? '로그인 중...' : '로그인'}
-      </button>
+      </Button>
     </form>
   );
 }
