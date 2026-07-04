@@ -3,6 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { authClient } from '@/lib/auth-client';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ApiClientError, bffFetch } from '@/lib/bff-client';
 
 /**
@@ -27,34 +29,29 @@ export function MeProbe() {
   }
 
   return (
-    <section className="card p-4">
+    <Card className="p-4">
       <div className="flex justify-between gap-4">
         <h2 className="m-0 text-base font-semibold">보호 API 호출 결과 (/api/v1/me)</h2>
-        <button
-          type="button"
-          onClick={signOut}
-          className="rounded-lg border px-3 py-1.5 text-sm hover:bg-black/5 dark:hover:bg-white/5"
-          style={{ borderColor: 'var(--border)' }}
-        >
+        <Button variant="outline" size="sm" onClick={signOut}>
           로그아웃
-        </button>
+        </Button>
       </div>
 
       {meQuery.isPending && <p>불러오는 중...</p>}
 
       {meQuery.isError && (
-        <p style={{ color: 'var(--delta-bad)' }}>BFF 호출 실패: {formatError(meQuery.error)}</p>
+        <p className="text-delta-bad">BFF 호출 실패: {formatError(meQuery.error)}</p>
       )}
 
       {meQuery.isSuccess && (
         <dl className="mt-3 grid grid-cols-[120px_1fr] gap-2">
-          <dt style={{ color: 'var(--text-secondary)' }}>sub</dt>
+          <dt className="text-text-secondary">sub</dt>
           <dd className="m-0 font-mono">{meQuery.data.sub}</dd>
-          <dt style={{ color: 'var(--text-secondary)' }}>email</dt>
+          <dt className="text-text-secondary">email</dt>
           <dd className="m-0 font-mono">{meQuery.data.email}</dd>
         </dl>
       )}
-    </section>
+    </Card>
   );
 }
 

@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import type { EChartsOption } from 'echarts';
 import { ChartContainer } from '@/components/charts/chart-container';
+import { Card } from '@/components/ui/card';
 
 /**
  * 수급 상황판 KPI + 차트 (목업 v4 이식, solar-742).
@@ -41,20 +42,13 @@ export function SupplyKpiCards() {
   return (
     <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
       {KPI.map((kpi) => (
-        <div key={kpi.label} className="card p-4">
-          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-            {kpi.label}
-          </div>
+        <Card key={kpi.label} className="p-4">
+          <div className="text-xs text-text-secondary">{kpi.label}</div>
           <div className="tabular mt-1 text-2xl font-semibold">
-            {kpi.value}{' '}
-            <span className="text-sm font-normal" style={{ color: 'var(--text-muted)' }}>
-              {kpi.unit}
-            </span>
+            {kpi.value} <span className="text-sm font-normal text-text-muted">{kpi.unit}</span>
           </div>
-          <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-            수집 시작 후 표시
-          </div>
-        </div>
+          <div className="mt-1 text-xs text-text-muted">수집 시작 후 표시</div>
+        </Card>
       ))}
     </div>
   );
@@ -104,24 +98,20 @@ export function SupplyCharts() {
 
   return (
     <>
-      <div className="card p-4">
+      <Card className="p-4">
         <div className="flex items-baseline justify-between">
           <h2 className="text-sm font-semibold">최근 24시간 수요·공급능력</h2>
-          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            MW · 15분 단위 (예시)
-          </span>
+          <span className="text-xs text-text-muted">MW · 15분 단위 (예시)</span>
         </div>
         <ChartContainer option={demandOption} height={260} ariaLabel="24시간 수요·공급능력 차트" />
-      </div>
-      <div className="card p-4">
+      </Card>
+      <Card className="p-4">
         <div className="flex items-baseline justify-between">
           <h2 className="text-sm font-semibold">최근 24시간 공급예비율</h2>
-          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            % · 15분 단위 (예시)
-          </span>
+          <span className="text-xs text-text-muted">% · 15분 단위 (예시)</span>
         </div>
         <ChartContainer option={reserveOption} height={200} ariaLabel="24시간 공급예비율 차트" />
-      </div>
+      </Card>
     </>
   );
 }

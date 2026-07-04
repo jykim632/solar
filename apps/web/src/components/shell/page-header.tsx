@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 /** 화면 상단 공통 골격 — 제목 + 범위 배지 + 설명 + 우측 상태 라인 (목업 v4). */
 export function PageHeader({
@@ -17,25 +18,18 @@ export function PageHeader({
       <div>
         <div className="flex items-center gap-2.5">
           <h1 className="text-lg font-semibold">{title}</h1>
-          <span
-            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium"
-            style={{
-              borderColor: 'var(--border)',
-              color: 'var(--text-secondary)',
-              background: 'color-mix(in oklab, var(--series-1) 7%, transparent)',
-            }}
+          <Badge
+            variant="outline"
+            className="text-text-secondary"
+            style={{ background: 'color-mix(in oklab, var(--series-1) 7%, transparent)' }}
           >
             {scopeBadge}
-          </span>
+          </Badge>
         </div>
-        <p className="mt-1 max-w-xl text-sm" style={{ color: 'var(--text-secondary)' }}>
-          {description}
-        </p>
+        <p className="mt-1 max-w-xl text-sm text-text-secondary">{description}</p>
       </div>
       {status && (
-        <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
-          {status}
-        </div>
+        <div className="flex items-center gap-3 text-xs text-text-muted">{status}</div>
       )}
     </div>
   );
