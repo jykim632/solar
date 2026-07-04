@@ -7,6 +7,10 @@ import { useMemo, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { ChartContainer } from '@/components/charts/chart-container';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ApiClientError, bffFetch } from '@/lib/bff-client';
 import { DEMO_ORGANIZATION_ID, queryKeys } from '@/lib/query-keys';
 import {
@@ -76,30 +80,32 @@ export function SpikeDemo() {
     submittedWire === null ? null : submittedWire.capacityKw * submittedWire.performanceRatio * 4.1;
 
   return (
-    <main style={{ padding: 24, fontFamily: 'system-ui, sans-serif', maxWidth: 1040 }}>
-      <header style={{ marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 28 }}>Week-1 프론트 스파이크</h1>
-        <p style={{ marginTop: 8, color: '#4b5563' }}>
+    <main className="mx-auto max-w-[1040px] space-y-4 p-6">
+      <header>
+        <h1 className="text-2xl font-semibold">Week-1 프론트 스파이크</h1>
+        <p className="mt-2 text-text-secondary">
           ChartContainer + form/wire 스키마 분리 + BFF fetch 래퍼 검증 페이지.
         </p>
       </header>
 
-      <section style={{ border: '1px solid #d1d5db', borderRadius: 8, padding: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+      <Card className="p-4">
+        <div className="flex justify-between gap-4">
           <div>
-            <h2 style={{ margin: 0, fontSize: 18 }}>시간별 발전량 (샘플)</h2>
-            <p style={{ marginTop: 4, marginBottom: 0, color: '#6b7280' }}>
+            <h2 className="text-lg font-semibold">시간별 발전량 (샘플)</h2>
+            <p className="mt-1 text-sm text-text-muted">
               Organization: {generationQuery.data?.organizationId ?? DEMO_ORGANIZATION_ID}
             </p>
           </div>
-          {generationQuery.isFetching && <span style={{ color: '#6b7280' }}>불러오는 중...</span>}
+          {generationQuery.isFetching && (
+            <span className="text-sm text-text-muted">불러오는 중...</span>
+          )}
         </div>
 
         {generationQuery.isError && (
-          <p style={{ color: '#b91c1c' }}>{formatError(generationQuery.error)}</p>
+          <p className="text-delta-bad">{formatError(generationQuery.error)}</p>
         )}
 
-        <div style={{ marginTop: 16 }}>
+        <div className="mt-4">
           <ChartContainer
             option={chartOption}
             loading={generationQuery.isLoading}
@@ -107,78 +113,49 @@ export function SpikeDemo() {
             ariaLabel="시간별 태양광 발전량 라인 차트"
           />
         </div>
-      </section>
+      </Card>
 
-      <section
-        style={{
-          border: '1px solid #d1d5db',
-          borderRadius: 8,
-          padding: 16,
-          marginTop: 16,
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: 18 }}>시뮬레이터 입력 (form/wire 분리 데모)</h2>
+      <Card className="p-4">
+        <h2 className="text-lg font-semibold">시뮬레이터 입력 (form/wire 분리 데모)</h2>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 16,
-            marginTop: 16,
-          }}
+          className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] items-end gap-4"
         >
-          <label style={{ display: 'grid', gap: 6 }}>
-            <span>설비용량 (kW)</span>
-            <input
-              {...register('capacityKw')}
-              inputMode="decimal"
-              style={{ padding: 8, border: '1px solid #9ca3af', borderRadius: 6 }}
-            />
+          <div className="space-y-1.5">
+            <Label htmlFor="capacityKw">설비용량 (kW)</Label>
+            <Input id="capacityKw" {...register('capacityKw')} inputMode="decimal" />
             {errors.capacityKw && (
-              <span style={{ color: '#b91c1c' }}>{errors.capacityKw.message}</span>
+              <span className="text-xs text-delta-bad">{errors.capacityKw.message}</span>
             )}
-          </label>
-
-          <label style={{ display: 'grid', gap: 6 }}>
-            <span>효율 (PR)</span>
-            <input
-              {...register('performanceRatio')}
-              inputMode="decimal"
-              style={{ padding: 8, border: '1px solid #9ca3af', borderRadius: 6 }}
-            />
-            {errors.performanceRatio && (
-              <span style={{ color: '#b91c1c' }}>{errors.performanceRatio.message}</span>
-            )}
-          </label>
-
-          <div style={{ alignSelf: 'end' }}>
-            <button type="submit" disabled={isSubmitting} style={{ padding: '9px 14px' }}>
-              변환
-            </button>
           </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="performanceRatio">효율 (PR)</Label>
+            <Input id="performanceRatio" {...register('performanceRatio')} inputMode="decimal" />
+            {errors.performanceRatio && (
+              <span className="text-xs text-delta-bad">{errors.performanceRatio.message}</span>
+            )}
+          </div>
+
+          <Button type="submit" disabled={isSubmitting}>
+            변환
+          </Button>
         </form>
 
         {submittedWire && (
-          <div style={{ marginTop: 16 }}>
-            <h3 style={{ margin: 0, fontSize: 16 }}>Wire payload (API body)</h3>
-            <pre
-              style={{
-                background: '#f3f4f6',
-                borderRadius: 6,
-                overflowX: 'auto',
-                padding: 12,
-              }}
-            >
+          <div className="mt-4">
+            <h3 className="text-base font-semibold">Wire payload (API body)</h3>
+            <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-3 text-xs">
               {JSON.stringify(submittedWire, null, 2)}
             </pre>
-            <p style={{ marginBottom: 0 }}>
-              일 발전량 추정: {formatNumber(dailyEstimateKwh)} kWh (가정 기반 시뮬레이션 —
-              실제 정산 아님)
+            <p className="mt-2 text-sm">
+              일 발전량 추정: {formatNumber(dailyEstimateKwh)} kWh (가정 기반 시뮬레이션 — 실제 정산
+              아님)
             </p>
           </div>
         )}
-      </section>
+      </Card>
     </main>
   );
 }
