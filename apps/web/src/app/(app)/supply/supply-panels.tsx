@@ -1,61 +1,84 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { EChartsOption } from 'echarts';
+import { SupplyRealtimeResponseSchema, type SupplyRealtimeItem } from '@solar/api-contracts';
 import { ChartContainer } from '@/components/charts/chart-container';
 import { Card } from '@/components/ui/card';
+import { ApiClientError, bffFetch } from '@/lib/bff-client';
+import { DEMO_ORGANIZATION_ID, queryKeys } from '@/lib/query-keys';
 
 /**
- * 수급 상황판 KPI + 차트 (목업 v4 이식, solar-742).
- * 데이터 소스 승인 대기 중 — 레이아웃 확인용 예시 시계열을 로컬 생성.
- * 실데이터 연결(r32.3)에서 이 더미 부분만 useQuery + bffFetch로 교체.
+ * 수급 상황판 KPI + 차트 (solar-r32.3 실데이터 연결).
+ * mart_supply_realtime → /api/bff/supply/realtime(BFF) → useQuery.
+ * 실시간 5분 슬롯이라 지연이 없어 최근 24h 창 + 최신 슬롯 KPI를 그대로 쓴다.
  */
-const DEMO_SLOTS = 96; // 24h × 15분
+const WINDOW_HOURS = 24;
 
-function demoSeries(): { labels: string[]; demand: number[]; capacity: number[] } {
-  const labels: string[] = [];
-  const demand: number[] = [];
-  const capacity: number[] = [];
+// slotAt(UTC instant)을 KST HH:mm 라벨로. 축 라벨/기준시각 표기에 사용(§4).
+const KST_HHMM = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Seoul',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
+const KST_STAMP = new Intl.DateTimeFormat('ko-KR', {
+  timeZone: 'Asia/Seoul',
+  month: 'numeric',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
 
-  for (let i = 0; i < DEMO_SLOTS; i += 1) {
-    const minutes = i * 15;
-    const hh = String(Math.floor(minutes / 60) % 24).padStart(2, '0');
-    const mm = String(minutes % 60).padStart(2, '0');
-    labels.push(`${hh}:${mm}`);
-    // 낮 피크 형태의 부드러운 더미 곡선 (실데이터 아님).
-    const phase = (i / DEMO_SLOTS) * Math.PI * 2;
-    demand.push(Math.round(72000 + 8000 * Math.sin(phase - Math.PI / 2) + 1500 * Math.sin(phase * 3)));
-    capacity.push(Math.round(90000 + 600 * Math.sin(phase)));
+function formatError(error: Error | null): string {
+  if (error instanceof ApiClientError) {
+    return `${error.error.message} (${error.error.code})`;
   }
-
-  return { labels, demand, capacity };
+  return error?.message ?? '데이터를 불러오지 못했습니다.';
 }
 
-const KPI = [
-  { label: '현재수요', value: '—', unit: 'MW' },
-  { label: '공급능력', value: '—', unit: 'MW' },
-  { label: '공급예비력', value: '—', unit: 'MW' },
-  { label: '공급예비율', value: '—', unit: '%' },
-];
+function formatMw(value: number | null): string {
+  return value === null ? '—' : Math.round(value).toLocaleString();
+}
 
-export function SupplyKpiCards() {
-  return (
-    <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-      {KPI.map((kpi) => (
-        <Card key={kpi.label} className="p-4">
-          <div className="text-xs text-text-secondary">{kpi.label}</div>
-          <div className="tabular mt-1 text-2xl font-semibold">
-            {kpi.value} <span className="text-sm font-normal text-text-muted">{kpi.unit}</span>
-          </div>
-          <div className="mt-1 text-xs text-text-muted">수집 시작 후 표시</div>
-        </Card>
-      ))}
-    </div>
+function formatPct(value: number | null): string {
+  return value === null ? '—' : value.toFixed(1);
+}
+
+export function SupplyDashboard() {
+  const query = useQuery({
+    queryKey: queryKeys.supplyRealtime(DEMO_ORGANIZATION_ID, WINDOW_HOURS),
+    queryFn: () =>
+      bffFetch(`/api/bff/supply/realtime?hours=${WINDOW_HOURS}`, SupplyRealtimeResponseSchema),
+    // 5분 슬롯이라 브라우저에 오래 두지 않는다.
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const items = query.data?.items ?? [];
+  const latest: SupplyRealtimeItem | undefined = items[items.length - 1];
+  const latestSlotAt = query.data?.meta.latestSlotAt ?? null;
+
+  const kpi = useMemo(
+    () => [
+      { label: '현재수요', value: formatMw(latest?.currentDemandMw ?? null), unit: 'MW' },
+      { label: '공급능력', value: formatMw(latest?.supplyAbilityMw ?? null), unit: 'MW' },
+      { label: '공급예비력', value: formatMw(latest?.reservePowerMw ?? null), unit: 'MW' },
+      { label: '공급예비율', value: formatPct(latest?.reserveRatePct ?? null), unit: '%' },
+    ],
+    [latest],
   );
-}
 
-export function SupplyCharts() {
-  const { labels, demand, capacity } = useMemo(demoSeries, []);
+  const series = useMemo(() => {
+    const labels = items.map((it) => KST_HHMM.format(new Date(it.slotAt)));
+    return {
+      labels,
+      demand: items.map((it) => it.currentDemandMw),
+      capacity: items.map((it) => it.supplyAbilityMw),
+      reserveRate: items.map((it) => it.reserveRatePct),
+    };
+  }, [items]);
 
   const demandOption = useMemo<EChartsOption>(
     () => ({
@@ -63,14 +86,18 @@ export function SupplyCharts() {
       tooltip: { trigger: 'axis' },
       legend: { top: 0, left: 0, icon: 'rect', itemWidth: 12, itemHeight: 3 },
       grid: { left: 64, right: 72, top: 32, bottom: 28 },
-      xAxis: { type: 'category', boundaryGap: false, data: labels },
-      yAxis: { type: 'value', min: 55000, axisLabel: { formatter: (v: number) => v.toLocaleString() } },
+      xAxis: { type: 'category', boundaryGap: false, data: series.labels },
+      yAxis: {
+        type: 'value',
+        scale: true,
+        axisLabel: { formatter: (v: number) => v.toLocaleString() },
+      },
       series: [
-        { name: '현재수요', type: 'line', smooth: true, symbol: 'none', data: demand },
-        { name: '공급능력', type: 'line', smooth: true, symbol: 'none', data: capacity },
+        { name: '현재수요', type: 'line', smooth: true, symbol: 'none', data: series.demand },
+        { name: '공급능력', type: 'line', smooth: true, symbol: 'none', data: series.capacity },
       ],
     }),
-    [labels, demand, capacity],
+    [series],
   );
 
   const reserveOption = useMemo<EChartsOption>(
@@ -78,7 +105,7 @@ export function SupplyCharts() {
       color: ['#3987e5'],
       tooltip: { trigger: 'axis' },
       grid: { left: 48, right: 24, top: 16, bottom: 28 },
-      xAxis: { type: 'category', boundaryGap: false, data: labels },
+      xAxis: { type: 'category', boundaryGap: false, data: series.labels },
       yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
       series: [
         {
@@ -87,30 +114,66 @@ export function SupplyCharts() {
           smooth: true,
           symbol: 'none',
           areaStyle: { opacity: 0.12 },
-          data: labels.map((_, i) =>
-            Number((((capacity[i] ?? 0) - (demand[i] ?? 0)) / (demand[i] ?? 1)) * 100).toFixed(1),
-          ),
+          data: series.reserveRate,
         },
       ],
     }),
-    [labels, demand, capacity],
+    [series],
   );
+
+  const empty = !query.isLoading && !query.isError && items.length === 0;
+  const stamp = latestSlotAt ? KST_STAMP.format(new Date(latestSlotAt)) : null;
 
   return (
     <>
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        {kpi.map((k) => (
+          <Card key={k.label} className="p-4">
+            <div className="text-xs text-text-secondary">{k.label}</div>
+            <div className="tabular mt-1 text-2xl font-semibold">
+              {k.value} <span className="text-sm font-normal text-text-muted">{k.unit}</span>
+            </div>
+            <div className="mt-1 text-xs text-text-muted">
+              {stamp ? `${stamp} 기준 (KST)` : '수집 시작 후 표시'}
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {query.isError && (
+        <p className="text-xs" style={{ color: 'var(--status-danger, #b91c1c)' }}>
+          {formatError(query.error)}
+        </p>
+      )}
+      {empty && (
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          표시할 데이터 없음 — 수집 실행 후 표시됩니다.
+        </p>
+      )}
+
       <Card className="p-4">
         <div className="flex items-baseline justify-between">
           <h2 className="text-sm font-semibold">최근 24시간 수요·공급능력</h2>
-          <span className="text-xs text-text-muted">MW · 15분 단위 (예시)</span>
+          <span className="text-xs text-text-muted">MW · 5분 단위</span>
         </div>
-        <ChartContainer option={demandOption} height={260} ariaLabel="24시간 수요·공급능력 차트" />
+        <ChartContainer
+          option={demandOption}
+          loading={query.isLoading}
+          height={260}
+          ariaLabel="24시간 수요·공급능력 차트"
+        />
       </Card>
       <Card className="p-4">
         <div className="flex items-baseline justify-between">
           <h2 className="text-sm font-semibold">최근 24시간 공급예비율</h2>
-          <span className="text-xs text-text-muted">% · 15분 단위 (예시)</span>
+          <span className="text-xs text-text-muted">% · 5분 단위</span>
         </div>
-        <ChartContainer option={reserveOption} height={200} ariaLabel="24시간 공급예비율 차트" />
+        <ChartContainer
+          option={reserveOption}
+          loading={query.isLoading}
+          height={200}
+          ariaLabel="24시간 공급예비율 차트"
+        />
       </Card>
     </>
   );

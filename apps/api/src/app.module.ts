@@ -6,6 +6,7 @@ import { GenerationModule } from './generation/generation.module';
 import { HealthController } from './health.controller';
 import { MeController } from './me.controller';
 import { RecModule } from './rec/rec.module';
+import { SupplyModule } from './supply/supply.module';
 
 /**
  * Root module. §10/§15.3 error-envelope filter + 전역 default-deny
@@ -13,7 +14,7 @@ import { RecModule } from './rec/rec.module';
  * solar-r32.2에서 이어진다.
  */
 @Module({
-  imports: [GenerationModule, RecModule],
+  imports: [GenerationModule, RecModule, SupplyModule],
   controllers: [HealthController, MeController],
   providers: [
     {
