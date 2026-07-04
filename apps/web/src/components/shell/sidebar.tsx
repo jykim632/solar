@@ -12,6 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 /**
  * 사이드바 (240px) — 목업 v4 이식. '내 발전소'(계획서 §4 외)는 인터뷰 반응
@@ -84,12 +85,9 @@ function NavSection({ items, pathname }: { items: NavItem[]; pathname: string })
             <Icon size={16} strokeWidth={2} />
             {item.label}
             {item.badge && (
-              <span
-                className="ml-auto rounded border px-1.5 py-0.5 text-[10px] font-medium"
-                style={{ borderColor: 'var(--border)' }}
-              >
+              <Badge variant="outline" className="ml-auto">
                 {item.badge}
-              </span>
+              </Badge>
             )}
           </>
         );
