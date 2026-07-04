@@ -6,6 +6,7 @@ import { GenerationModule } from './generation/generation.module';
 import { HealthController } from './health.controller';
 import { MeController } from './me.controller';
 import { RecModule } from './rec/rec.module';
+import { SmpModule } from './smp/smp.module';
 import { SupplyModule } from './supply/supply.module';
 
 /**
@@ -14,7 +15,7 @@ import { SupplyModule } from './supply/supply.module';
  * solar-r32.2에서 이어진다.
  */
 @Module({
-  imports: [GenerationModule, RecModule, SupplyModule],
+  imports: [GenerationModule, RecModule, SmpModule, SupplyModule],
   controllers: [HealthController, MeController],
   providers: [
     {

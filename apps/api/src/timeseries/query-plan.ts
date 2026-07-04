@@ -2,16 +2,20 @@ import type {
   FuelType,
   GenerationBucket,
   GenerationHourlyQuery,
+  MarketArea,
   RecDailyQuery,
   RecMarketArea,
+  SmpHourlyQuery,
 } from '@solar/api-contracts';
 import {
   decodeGenerationDailyCursor,
   decodeGenerationHourlyCursor,
   decodeRecDailyCursor,
+  decodeSmpHourlyCursor,
   type GenerationDailyCursor,
   type GenerationHourlyCursor,
   type RecDailyCursor,
+  type SmpHourlyCursor,
 } from './cursor';
 import { addDaysToIsoDate, currentKstDate, inclusiveDayCount, kstDateRangeToUtc } from './kst';
 import { TimeseriesQueryError } from './timeseries-query-error';
@@ -28,6 +32,10 @@ export const GENERATION_RAW_MAX_RANGE_DAYS = 31;
 export const GENERATION_DAILY_MAX_RANGE_DAYS = 366 * 5;
 export const REC_DEFAULT_RANGE_DAYS = 90;
 export const REC_MAX_RANGE_DAYS = 366 * 5;
+// SMP는 하루 48행(24h×육지/제주) — 31일이면 limit 1000 안쪽. 하루전 예측
+// 소스라 max(source_date)가 내일일 수 있어 기본 to는 latest 앵커를 쓴다.
+export const SMP_DEFAULT_RANGE_DAYS = 7;
+export const SMP_MAX_RANGE_DAYS = 31;
 
 interface BaseGenerationQueryPlan {
   region: string | undefined;
@@ -64,6 +72,20 @@ export interface RecDailyQueryPlan {
   defaultedFrom: boolean;
   defaultedTo: boolean;
   cursor: RecDailyCursor | null;
+}
+
+export interface SmpHourlyQueryPlan {
+  area: MarketArea | undefined;
+  from: string;
+  to: string;
+  fromUtc: Date;
+  toExclusiveUtc: Date;
+  rangeDays: number;
+  limit: number;
+  defaultedFrom: boolean;
+  defaultedTo: boolean;
+  latestAvailableSourceDate: string | null;
+  cursor: SmpHourlyCursor | null;
 }
 
 export function buildGenerationQueryPlan(
@@ -118,6 +140,37 @@ export function buildGenerationQueryPlan(
     ...base,
     bucket,
     cursor: decodeGenerationHourlyCursor(query.cursor),
+  };
+}
+
+export function buildSmpHourlyQueryPlan(
+  query: SmpHourlyQuery,
+  latestAvailableSourceDate: string | null,
+  now = new Date(),
+): SmpHourlyQueryPlan {
+  const fallbackTo = latestAvailableSourceDate ?? currentKstDate(now);
+  const to = query.to ?? fallbackTo;
+  const from = query.from ?? addDaysToIsoDate(to, 1 - SMP_DEFAULT_RANGE_DAYS, 'to');
+  const rangeDays = inclusiveDayCount(from, to);
+
+  if (rangeDays > SMP_MAX_RANGE_DAYS) {
+    throw new TimeseriesQueryError('to', `SMP range cannot exceed ${SMP_MAX_RANGE_DAYS} days`);
+  }
+
+  const utcRange = kstDateRangeToUtc(from, to);
+
+  return {
+    area: query.area,
+    from,
+    to,
+    fromUtc: utcRange.fromUtc,
+    toExclusiveUtc: utcRange.toExclusiveUtc,
+    rangeDays,
+    limit: query.limit,
+    defaultedFrom: query.from === undefined,
+    defaultedTo: query.to === undefined,
+    latestAvailableSourceDate,
+    cursor: decodeSmpHourlyCursor(query.cursor),
   };
 }
 

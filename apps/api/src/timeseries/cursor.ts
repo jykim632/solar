@@ -1,4 +1,4 @@
-import type { RecMarketArea } from '@solar/api-contracts';
+import type { MarketArea, RecMarketArea } from '@solar/api-contracts';
 import { parseIsoDateParts } from './kst';
 import { TimeseriesQueryError } from './timeseries-query-error';
 
@@ -6,7 +6,7 @@ import { TimeseriesQueryError } from './timeseries-query-error';
  * Opaque cursor (base64url JSON). keyset 페이지네이션의 정렬 키를 담는다 —
  * kind 필드로 endpoint 간 오용을 차단하고, 잘못된 cursor는 400.
  */
-type CursorKind = 'generation-hourly' | 'generation-daily' | 'rec-daily';
+type CursorKind = 'generation-hourly' | 'generation-daily' | 'rec-daily' | 'smp-hourly';
 
 export interface GenerationHourlyCursor {
   intervalStartAt: string;
@@ -23,7 +23,13 @@ export interface RecDailyCursor {
   marketArea: RecMarketArea;
 }
 
+export interface SmpHourlyCursor {
+  intervalStartAt: string;
+  marketArea: MarketArea;
+}
+
 const REC_MARKET_AREAS = ['LAND', 'JEJU', 'TOTAL'] as const;
+const SMP_MARKET_AREAS = ['LAND', 'JEJU'] as const;
 
 export function encodeGenerationHourlyCursor(cursor: GenerationHourlyCursor): string {
   return encodeCursor({ v: 1, kind: 'generation-hourly', ...cursor });
@@ -35,6 +41,10 @@ export function encodeGenerationDailyCursor(cursor: GenerationDailyCursor): stri
 
 export function encodeRecDailyCursor(cursor: RecDailyCursor): string {
   return encodeCursor({ v: 1, kind: 'rec-daily', ...cursor });
+}
+
+export function encodeSmpHourlyCursor(cursor: SmpHourlyCursor): string {
+  return encodeCursor({ v: 1, kind: 'smp-hourly', ...cursor });
 }
 
 export function decodeGenerationHourlyCursor(
@@ -79,6 +89,23 @@ export function decodeRecDailyCursor(cursor: string | undefined): RecDailyCursor
   return {
     tradeDate: requireIsoDate(payload.tradeDate, 'tradeDate'),
     marketArea: marketArea as RecMarketArea,
+  };
+}
+
+export function decodeSmpHourlyCursor(cursor: string | undefined): SmpHourlyCursor | null {
+  const payload = decodeRawCursor(cursor, 'smp-hourly');
+  if (payload === null) {
+    return null;
+  }
+
+  const marketArea = requireNonEmptyString(payload.marketArea, 'marketArea');
+  if (!SMP_MARKET_AREAS.includes(marketArea as MarketArea)) {
+    throw cursorError('cursor marketArea is invalid');
+  }
+
+  return {
+    intervalStartAt: requireIsoInstant(payload.intervalStartAt, 'intervalStartAt'),
+    marketArea: marketArea as MarketArea,
   };
 }
 

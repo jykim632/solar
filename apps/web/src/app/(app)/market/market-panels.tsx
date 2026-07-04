@@ -6,6 +6,8 @@ import type { EChartsOption } from 'echarts';
 import {
   GenerationHourlyResponseSchema,
   RecDailyResponseSchema,
+  SmpHourlyResponseSchema,
+  type MarketArea,
 } from '@solar/api-contracts';
 import { ChartContainer } from '@/components/charts/chart-container';
 import { KoreaMap } from '@/components/charts/korea-map';
@@ -22,8 +24,9 @@ import { DEMO_ORGANIZATION_ID, queryKeys } from '@/lib/query-keys';
  *
  * 데이터는 BFF(useQuery + bffFetch)로 연결한다. 발전량은 ~2개월 지연이라
  * "today" 기준 창은 대부분 비므로, latest 쿼리로 meta.latestAvailableSourceDate를
- * 먼저 얻어 모든 발전량 윈도우의 앵커로 쓴다(§5.4/§10). SMP는 소스 검증 중(§5.5)이라
- * 그대로 안내 카드만 유지한다.
+ * 먼저 얻어 모든 발전량 윈도우의 앵커로 쓴다(§5.4/§10). SMP는 대체 소스 확정
+ * (solar-2af.6, 하루전 발전계획용)으로 시간별 차트를 연결한다(solar-r32.7) —
+ * 서버 기본 7일 창, 시장(육지/제주) select 연동.
  */
 const PERIODS = ['7일', '30일', '90일'] as const;
 type Period = (typeof PERIODS)[number];
@@ -69,6 +72,26 @@ function instantToKstMonthDay(instant: string): string {
   return KST_MONTH_DAY.format(new Date(instant));
 }
 
+// SMP 시간별 라벨 — KST M/D HH시.
+const KST_MONTH_DAY_HOUR = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Seoul',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  hour12: false,
+});
+
+function instantToKstMonthDayHour(instant: string): string {
+  const parts = KST_MONTH_DAY_HOUR.formatToParts(new Date(instant));
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  return `${get('month')}/${get('day')} ${get('hour')}시`;
+}
+
+const MARKET_AREA_OPTIONS = [
+  { area: 'LAND', label: '육지' },
+  { area: 'JEJU', label: '제주' },
+] as const;
+
 // YYYY-MM-DD → [year, month, day]. 숫자 3개를 보장(불량 입력은 0으로 폴백).
 function parseIsoDate(isoDate: string): [number, number, number] {
   const parts = isoDate.split('-').map(Number);
@@ -97,6 +120,7 @@ function formatError(error: Error | null): string {
 export function MarketPanels() {
   const [period, setPeriod] = useState<Period>('30일');
   const [regionGeoName, setRegionGeoName] = useState<string>('경기도');
+  const [marketArea, setMarketArea] = useState<MarketArea>('LAND');
 
   const periodDays = PERIOD_DAYS[period];
   const regionShort =
@@ -151,6 +175,14 @@ export function MarketPanels() {
     queryFn: () => bffFetch('/api/bff/rec/daily?area=LAND', RecDailyResponseSchema),
   });
 
+  // 5) smp — 서버 기본 7일 창(하루전 예측 소스라 내일까지 포함될 수 있음).
+  // 시간별 데이터라 기간 토글과 무관하게 최근 창 고정, 시장 select만 연동.
+  const smpQuery = useQuery({
+    queryKey: queryKeys.smpHourly(DEMO_ORGANIZATION_ID, marketArea),
+    queryFn: () =>
+      bffFetch(`/api/bff/smp/hourly?area=${marketArea}&limit=1000`, SmpHourlyResponseSchema),
+  });
+
   const gen = useMemo(() => {
     const points = [...(generationQuery.data?.items ?? [])].sort((a, b) =>
       a.intervalStartAt.localeCompare(b.intervalStartAt),
@@ -173,6 +205,16 @@ export function MarketPanels() {
     const max = peak > 0 ? Math.ceil(peak / 1000) * 1000 : 1000;
     return { data, max };
   }, [mapQuery.data]);
+
+  const smp = useMemo(() => {
+    const points = [...(smpQuery.data?.items ?? [])].sort((a, b) =>
+      a.intervalStartAt.localeCompare(b.intervalStartAt),
+    );
+    return {
+      labels: points.map((p) => instantToKstMonthDayHour(p.intervalStartAt)),
+      values: points.map((p) => p.smpKrwPerKwh),
+    };
+  }, [smpQuery.data]);
 
   const rec = useMemo(() => {
     const items = (recQuery.data?.items ?? []).filter((i) => i.marketArea === 'LAND');
@@ -205,6 +247,27 @@ export function MarketPanels() {
     [gen],
   );
 
+  const smpOption = useMemo<EChartsOption>(
+    () => ({
+      color: ['#e58e39'],
+      tooltip: { trigger: 'axis' },
+      grid: { left: 48, right: 24, top: 24, bottom: 28 },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: smp.labels,
+        axisLabel: { interval: 23 },
+      },
+      yAxis: {
+        type: 'value',
+        scale: true,
+        axisLabel: { formatter: (v: number) => v.toLocaleString() },
+      },
+      series: [{ name: 'SMP', type: 'line', smooth: false, symbol: 'none', data: smp.values }],
+    }),
+    [smp],
+  );
+
   const recOption = useMemo<EChartsOption>(
     () => ({
       color: ['#3987e5', '#199e70'],
@@ -230,6 +293,10 @@ export function MarketPanels() {
   const genEmpty = !genLoading && !genError && gen.values.length === 0;
   const mapEmpty = !latestQuery.isLoading && !mapQuery.isLoading && !mapQuery.error && map.data.length === 0;
   const recEmpty = !recQuery.isLoading && !recQuery.isError && rec.labels.length === 0;
+  const smpEmpty = !smpQuery.isLoading && !smpQuery.isError && smp.values.length === 0;
+  const smpLatest = smpQuery.data?.meta.latestAvailableSourceDate ?? null;
+  const marketAreaLabel =
+    MARKET_AREA_OPTIONS.find((o) => o.area === marketArea)?.label ?? marketArea;
 
   return (
     <>
@@ -261,9 +328,12 @@ export function MarketPanels() {
             </option>
           ))}
         </select>
-        <select defaultValue="육지">
-          <option>시장: 육지</option>
-          <option>시장: 제주</option>
+        <select value={marketArea} onChange={(e) => setMarketArea(e.target.value as MarketArea)}>
+          {MARKET_AREA_OPTIONS.map((o) => (
+            <option key={o.area} value={o.area}>
+              시장: {o.label}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -327,26 +397,34 @@ export function MarketPanels() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <div className="card flex flex-col p-4">
+        <div className="card p-4">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold">SMP — 육지</h2>
+            <h2 className="text-sm font-semibold">SMP — {marketAreaLabel}</h2>
             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
               원/kWh · 시간별
             </span>
           </div>
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-center">
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium"
-              style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
-            >
-              <span className="h-2 w-2 rounded-full" style={{ background: 'var(--status-warning)' }} />
-              데이터 소스 검증 중
-            </span>
-            <p className="max-w-xs text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-              기존 계통한계가격조회 API가 삭제 예정으로 안내되어 대체 소스를 검증하고 있습니다. 검증
-              완료 전까지 SMP 시계열은 제공되지 않습니다.
+          {smpLatest && (
+            <p className="mt-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+              기준일 {smpLatest} · 하루전 발전계획용 확정가 (실시간 정산가 아님)
             </p>
-          </div>
+          )}
+          <ChartContainer
+            option={smpOption}
+            loading={smpQuery.isLoading}
+            height={240}
+            ariaLabel={`${marketAreaLabel} SMP 시간별 추이`}
+          />
+          {smpQuery.isError && (
+            <p className="text-xs" style={{ color: 'var(--status-danger, #b91c1c)' }}>
+              {formatError(smpQuery.error)}
+            </p>
+          )}
+          {smpEmpty && (
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              표시할 데이터 없음
+            </p>
+          )}
         </div>
 
         <div className="card p-4">

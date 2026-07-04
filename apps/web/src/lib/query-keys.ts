@@ -23,6 +23,9 @@ export const queryKeys = {
   // REC는 서버 기본 90일 창을 한 번 받고 기간 필터는 클라이언트에서 — area만 key에.
   recDaily: (organizationId: string, area: string) =>
     [...organization(organizationId), 'rec', 'daily', area] as const,
+  // SMP 시간별 (solar-r32.7). 하루전 예측 소스 — 서버 기본 7일 창, area만 key에.
+  smpHourly: (organizationId: string, area: string) =>
+    [...organization(organizationId), 'smp', 'hourly', area] as const,
   // 전력수급 상황판 (solar-r32.3). 실시간 5분 슬롯이라 지연 없음 — hours 창만 key에.
   supplyRealtime: (organizationId: string, hours: number) =>
     [...organization(organizationId), 'supply', 'realtime', hours] as const,

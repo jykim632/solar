@@ -1,10 +1,20 @@
-import { GenerationHourlyQuerySchema, RecDailyQuerySchema } from '@solar/api-contracts';
+import {
+  GenerationHourlyQuerySchema,
+  RecDailyQuerySchema,
+  SmpHourlyQuerySchema,
+} from '@solar/api-contracts';
 import { describe, expect, it } from 'vitest';
-import { encodeGenerationDailyCursor, encodeRecDailyCursor } from './cursor';
+import {
+  encodeGenerationDailyCursor,
+  encodeRecDailyCursor,
+  encodeSmpHourlyCursor,
+} from './cursor';
 import {
   buildGenerationQueryPlan,
   buildRecDailyQueryPlan,
+  buildSmpHourlyQueryPlan,
   GENERATION_RAW_MAX_RANGE_DAYS,
+  SMP_MAX_RANGE_DAYS,
 } from './query-plan';
 
 describe('timeseries query plans', () => {
@@ -85,5 +95,70 @@ describe('timeseries query plans', () => {
       tradeDate: '2026-06-02',
       marketArea: 'TOTAL',
     });
+  });
+
+  it('defaults SMP to the last 7 KST days ending at latest source_date', () => {
+    const query = SmpHourlyQuerySchema.parse({});
+    const plan = buildSmpHourlyQueryPlan(query, '2026-07-03');
+
+    expect(plan.from).toBe('2026-06-27');
+    expect(plan.to).toBe('2026-07-03');
+    expect(plan.rangeDays).toBe(7);
+    expect(plan.defaultedFrom).toBe(true);
+    expect(plan.defaultedTo).toBe(true);
+    expect(plan.latestAvailableSourceDate).toBe('2026-07-03');
+  });
+
+  it('falls back SMP anchor to today KST when the mart is empty', () => {
+    const query = SmpHourlyQuerySchema.parse({});
+    const plan = buildSmpHourlyQueryPlan(query, null, new Date('2026-07-04T03:00:00.000Z'));
+
+    expect(plan.to).toBe('2026-07-04');
+    expect(plan.latestAvailableSourceDate).toBeNull();
+  });
+
+  it('rejects SMP ranges wider than the max', () => {
+    const query = SmpHourlyQuerySchema.parse({
+      from: '2026-01-01',
+      to: '2026-03-01',
+    });
+
+    expect(() => buildSmpHourlyQueryPlan(query, '2026-07-03')).toThrow(
+      `SMP range cannot exceed ${SMP_MAX_RANGE_DAYS} days`,
+    );
+  });
+
+  it('decodes SMP cursor into the query plan', () => {
+    const cursor = encodeSmpHourlyCursor({
+      intervalStartAt: '2026-07-01T15:00:00.000Z',
+      marketArea: 'JEJU',
+    });
+    const query = SmpHourlyQuerySchema.parse({
+      from: '2026-07-01',
+      to: '2026-07-03',
+      area: 'JEJU',
+      cursor,
+      limit: '48',
+    });
+    const plan = buildSmpHourlyQueryPlan(query, '2026-07-03');
+
+    expect(plan.area).toBe('JEJU');
+    expect(plan.limit).toBe(48);
+    expect(plan.cursor).toEqual({
+      intervalStartAt: '2026-07-01T15:00:00.000Z',
+      marketArea: 'JEJU',
+    });
+  });
+
+  it('rejects a generation cursor on the SMP endpoint', () => {
+    const foreignCursor = encodeGenerationDailyCursor({
+      sourceDate: '2026-01-15',
+      regionCode: 'SEOUL',
+    });
+    const query = SmpHourlyQuerySchema.parse({ cursor: foreignCursor });
+
+    expect(() => buildSmpHourlyQueryPlan(query, '2026-07-03')).toThrow(
+      'cursor does not match this endpoint',
+    );
   });
 });
