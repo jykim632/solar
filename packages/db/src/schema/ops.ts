@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   bigint,
   bigserial,
+  boolean,
   integer,
   jsonb,
   serial,
@@ -26,6 +27,8 @@ export const datasource = pgTable(
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
     provider: text('provider').notNull(),
+    // 수집 kill switch (solar-up3): false면 worker가 run 기록 없이 skip.
+    enabled: boolean('enabled').notNull().default(true),
     sourceType: text('source_type').notNull(),
     updateCycle: text('update_cycle'),
     url: text('url'),

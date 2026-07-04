@@ -28,6 +28,7 @@ async function bootstrap(): Promise<void> {
 
   const cliArgs = parseIngestArgs(args);
   const { ingest, closeIngestionResources } = await import('./handler.js');
+  const { DatasourceDisabledError } = await import('./ingestion/core.js');
 
   try {
     const result = await ingest(cliArgs);
@@ -42,6 +43,17 @@ async function bootstrap(): Promise<void> {
     }
 
     process.exitCode = result.status === 'success' ? 0 : 1;
+  } catch (err) {
+    // kill switch(datasource.enabled=false)는 오류가 아니라 의도된 skip —
+    // run 기록 없이 exit 0 (스케줄 재시도/DLQ 유발 금지).
+    if (err instanceof DatasourceDisabledError) {
+      console.log(
+        `[worker] ingestion skipped (datasource disabled) datasource=${err.datasource}`,
+      );
+      process.exitCode = 0;
+    } else {
+      throw err;
+    }
   } finally {
     await closeIngestionResources();
   }

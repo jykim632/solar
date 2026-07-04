@@ -29,4 +29,9 @@ export const queryKeys = {
   // 전력수급 상황판 (solar-r32.3). 실시간 5분 슬롯이라 지연 없음 — hours 창만 key에.
   supplyRealtime: (organizationId: string, hours: number) =>
     [...organization(organizationId), 'supply', 'realtime', hours] as const,
+  // 수집 관리 (solar-up3). datasource 목록+최근 run 요약 / 실행 이력(필터 datasource key).
+  opsDatasources: (organizationId: string) =>
+    [...organization(organizationId), 'ops', 'datasources'] as const,
+  opsRuns: (organizationId: string, datasource: string) =>
+    [...organization(organizationId), 'ops', 'runs', datasource] as const,
 };

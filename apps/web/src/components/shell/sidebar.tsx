@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   BarChart3,
   Calculator,
+  Database,
   FileText,
   Sun,
   Timer,
@@ -37,7 +38,10 @@ const NAV_P1: NavItem[] = [
   { href: '/reports', label: '월간 리포트', icon: FileText, badge: 'P1', disabled: true },
 ];
 
-const NAV_ADMIN: NavItem[] = [{ href: '/org', label: '조직 관리', icon: Users, disabled: true }];
+const NAV_ADMIN: NavItem[] = [
+  { href: '/ingestion', label: '수집 관리', icon: Database },
+  { href: '/org', label: '조직 관리', icon: Users, disabled: true },
+];
 
 export function Sidebar() {
   const pathname = usePathname();

@@ -173,6 +173,17 @@ export interface IngestionSummary {
   errorMessage?: string;
 }
 
+/**
+ * datasource.enabled=false kill switch (solar-up3). run row insert 전에
+ * 던져지므로 ops_ingestion_run에는 흔적이 남지 않는다(결정: 기록 없음).
+ */
+export class DatasourceDisabledError extends Error {
+  constructor(readonly datasource: string) {
+    super(`Datasource "${datasource}" is disabled. Enable it before ingesting.`);
+    this.name = 'DatasourceDisabledError';
+  }
+}
+
 export interface RawStoreSaveInput {
   datasourceName: string;
   logicalDate: string;
@@ -724,7 +735,7 @@ function assertDataGoKrAdapter(adapter: IngestionAdapter): DataGoKrAdapter {
 
 async function findDatasourceId(db: Db, adapter: IngestionAdapter): Promise<number> {
   const rows = await db
-    .select({ id: datasource.id })
+    .select({ id: datasource.id, enabled: datasource.enabled })
     .from(datasource)
     .where(
       and(eq(datasource.name, adapter.datasourceName), eq(datasource.provider, adapter.provider)),
@@ -736,6 +747,10 @@ async function findDatasourceId(db: Db, adapter: IngestionAdapter): Promise<numb
     throw new Error(
       `Datasource seed is missing for name=${adapter.datasourceName}, provider=${adapter.provider}. Run pnpm db:seed.`,
     );
+  }
+
+  if (!row.enabled) {
+    throw new DatasourceDisabledError(adapter.key);
   }
 
   return row.id;
