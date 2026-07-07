@@ -11,6 +11,7 @@ import {
 } from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+import { applyChartTheme, observeThemeChange, readChartTheme } from './chart-theme';
 
 // Tree-shaken registry — P0/P1 화면은 line/bar 중심. 차트 타입 추가 시 여기에만 등록.
 echarts.use([
@@ -36,6 +37,9 @@ export function ChartContainerClient({
 }: ChartRendererProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<EChartsType | null>(null);
+  // 최신 option을 ref로 들고 있어야 테마 전환 시 재적용할 수 있다.
+  const optionRef = useRef(option);
+  optionRef.current = option;
 
   useEffect(() => {
     const element = elementRef.current;
@@ -53,7 +57,17 @@ export function ChartContainerClient({
 
     resize();
 
+    // 다크/라이트 토글 시 canvas는 CSS 변수를 못 읽으므로 토큰을 다시 읽어
+    // 축·그리드·툴팁 색상을 재주입한다.
+    const disposeThemeObserver = observeThemeChange(() => {
+      chart.setOption(applyChartTheme(optionRef.current, readChartTheme()), {
+        notMerge: true,
+        lazyUpdate: false,
+      });
+    });
+
     return () => {
+      disposeThemeObserver();
       resizeObserver.disconnect();
       chart.dispose();
 
@@ -64,7 +78,10 @@ export function ChartContainerClient({
   }, []);
 
   useEffect(() => {
-    chartRef.current?.setOption(option, { notMerge: true, lazyUpdate: false });
+    chartRef.current?.setOption(applyChartTheme(option, readChartTheme()), {
+      notMerge: true,
+      lazyUpdate: false,
+    });
   }, [option]);
 
   useEffect(() => {

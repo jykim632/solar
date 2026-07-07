@@ -6,6 +6,7 @@ import { TooltipComponent, VisualMapComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import koreaGeo from '@/data/skorea-provinces-geo.json';
+import { observeThemeChange, readChartTheme } from './chart-theme';
 
 echarts.use([MapChart, TooltipComponent, VisualMapComponent, CanvasRenderer]);
 
@@ -106,9 +107,15 @@ export function KoreaMapClient({
   }, []);
 
   useEffect(() => {
-    chartRef.current?.setOption(
-      {
+    // canvas는 CSS 변수를 못 읽으므로 토큰을 읽어 지역 경계선·빈 지역 배경·
+    // 라벨 색을 테마에 맞춘다. 다크에선 밝은 회색 기본 경계선이 튀는 문제 해결.
+    const buildOption = () => {
+      const theme = readChartTheme();
+      return {
         tooltip: {
+          backgroundColor: theme.surface,
+          borderColor: theme.axisColor,
+          textStyle: { color: theme.textColor },
           formatter: (p: { name: string; value?: number }) =>
             `${p.name}<br/><strong>${(p.value ?? 0).toLocaleString()} ${valueUnit}</strong>`,
         },
@@ -118,7 +125,7 @@ export function KoreaMapClient({
           left: 0,
           bottom: 0,
           text: ['높음', '낮음'],
-          textStyle: { fontSize: 11 },
+          textStyle: { fontSize: 11, color: theme.mutedColor },
           // sequential blue 100→700 (dataviz 규칙 — 크기 인코딩 단일 색상)
           inRange: { color: ['#cde2fb', '#0d366b'] },
           calculable: false,
@@ -132,16 +139,23 @@ export function KoreaMapClient({
             map: 'korea',
             roam: false,
             selectedMode: 'single',
-            itemStyle: { borderWidth: 1 },
-            emphasis: { label: { show: true, fontSize: 11 } },
+            // 값 없는 지역은 surface 배경, 경계선은 axis 토큰으로 recessive하게.
+            itemStyle: { borderWidth: 1, borderColor: theme.axisColor, areaColor: theme.surface },
+            emphasis: { label: { show: true, fontSize: 11, color: theme.textColor } },
             select: { label: { show: true, fontWeight: 600 }, itemStyle: { borderWidth: 2 } },
-            label: { show: false },
+            label: { show: false, color: theme.textColor },
             data: data.map((d) => ({ ...d, selected: d.name === selectedName })),
           },
         ],
-      },
-      { notMerge: true },
-    );
+      };
+    };
+
+    chartRef.current?.setOption(buildOption(), { notMerge: true });
+
+    const disposeThemeObserver = observeThemeChange(() => {
+      chartRef.current?.setOption(buildOption(), { notMerge: true });
+    });
+    return disposeThemeObserver;
   }, [data, max, selectedName, valueUnit]);
 
   return <div ref={elementRef} style={{ width: '100%', height: '100%', minHeight: '100%' }} />;
