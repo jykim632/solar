@@ -1,0 +1,35 @@
+{
+  "name": "@solar/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest run",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.1.6",
+    "@nestjs/core": "11.1.6",
+    "@nestjs/platform-express": "11.1.6",
+    "@solar/api-contracts": "workspace:*",
+    "@solar/db": "workspace:*",
+    "@solar/worker": "workspace:*",
+    "drizzle-orm": "0.45.1",
+    "jose": "6.2.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "4.4.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.10",
+    "@nestjs/schematics": "11.0.8",
+    "@types/express": "5.0.3",
+    "@types/node": "24.7.0",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}

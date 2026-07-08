@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Allow only these dependencies to run install/build scripts.
+# esbuild = tsx; sharp = Next image optimizer; @nestjs/core = DI metadata.
+# msgpackr-extract (bullmq transitive) is left off — pure-JS fallback works.
+allowBuilds:
+  "@nestjs/core": true
+  esbuild: true
+  sharp: true
+  msgpackr-extract: false

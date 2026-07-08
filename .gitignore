@@ -3,6 +3,9 @@
 .idea/
 .vscode/
 
+# Git worktrees (Claude Code native tool creates these here)
+.claude/worktrees/
+
 # Secrets and local environment
 .env
 .env.*
@@ -15,6 +18,11 @@ out/
 dist/
 build/
 coverage/
+.turbo/
+*.tsbuildinfo
+
+# Next.js generated ambient types
+next-env.d.ts
 
 # Python / ETL artifacts
 __pycache__/
@@ -36,3 +44,7 @@ data/raw/
 data/staging/
 artifacts/
 reports/generated/
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+.beads-credential-key

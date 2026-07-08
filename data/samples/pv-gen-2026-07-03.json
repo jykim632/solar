@@ -1,0 +1,1 @@
+{  "response" : {    "header" : {      "resultCode" : "00",      "resultMsg" : "OK"    },    "body" : {      "dataType" : "JSON",      "totalCount" : "0",      "numOfRows" : "50",      "pageNo" : "1",      "items" : {        "item" : [ ]      }    }  }}

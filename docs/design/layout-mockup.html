@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solar Market Intelligence — 레이아웃 시안 (P0 3화면)</title>
+<!-- 정적 시안 전용: Tailwind Play CDN + ECharts CDN. 실코드(apps/web) 아님. -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6/dist/echarts.min.js"></script>
+<style>
+  /* ── 디자인 토큰 (dataviz reference palette) ─────────────────── */
+  :root {
+    --page:           #f9f9f7;
+    --surface-1:      #fcfcfb;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --axis:           #c3c2b7;
+    --border:         rgba(11, 11, 11, 0.10);
+    --series-1:       #2a78d6;  /* blue  — 시리즈 1 (고정 슬롯) */
+    --series-2:       #1baf7a;  /* aqua  — 시리즈 2 (고정 슬롯) */
+    --status-good:    #0ca30c;
+    --status-warning: #fab219;
+    --delta-good:     #006300;
+    --delta-bad:      #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page:           #0d0d0d;
+      --surface-1:      #1a1a19;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid:           #2c2c2a;
+      --axis:           #383835;
+      --border:         rgba(255, 255, 255, 0.10);
+      --series-1:       #3987e5;
+      --series-2:       #199e70;
+      --status-good:    #0ca30c;
+      --status-warning: #fab219;
+      --delta-good:     #0ca30c;
+      --delta-bad:      #e66767;
+    }
+  }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page);
+    color: var(--text-primary);
+  }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+  }
+  .nav-item[aria-current="page"] {
+    background: color-mix(in oklab, var(--series-1) 12%, transparent);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .tabular { font-variant-numeric: tabular-nums; }
+  select, input[type="number"], input[type="text"] {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text-primary);
+    padding: 0.375rem 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  /* ── 용어 ? 툴팁 ──────────────────────────────────────────── */
+  .term {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    border: 1px solid var(--axis);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    vertical-align: 1px;
+    cursor: help;
+    position: relative;
+    flex: none;
+  }
+  .term:hover, .term:focus-visible {
+    border-color: var(--series-1);
+    color: var(--series-1);
+  }
+  .term::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(2px);
+    width: max-content;
+    max-width: 260px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    padding: 0.5rem 0.625rem;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s, transform 0.12s;
+    pointer-events: none;
+    z-index: 40;
+  }
+  .term[data-tip]:hover::after, .term[data-tip]:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+  /* 화면 좌측 가장자리(시뮬 폼)에서는 툴팁을 왼쪽 정렬로 */
+  .term.tip-left::after { left: 0; transform: translateX(-8px) translateY(2px); }
+  .term.tip-left[data-tip]:hover::after, .term.tip-left[data-tip]:focus-visible::after { transform: translateX(-8px) translateY(0); }
+
+  /* ── 데이터 범위 배지 ─────────────────────────────────────── */
+  .scope-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    padding: 0.125rem 0.625rem;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: color-mix(in oklab, var(--series-1) 7%, transparent);
+  }
+
+  /* ── 용어 사전 drawer ─────────────────────────────────────── */
+  #glossary-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.28);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s;
+    z-index: 50;
+  }
+  #glossary-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 340px;
+    max-width: 90vw;
+    background: var(--surface-1);
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+    z-index: 51;
+    display: flex;
+    flex-direction: column;
+  }
+  body.glossary-open #glossary-backdrop { opacity: 1; visibility: visible; }
+  body.glossary-open #glossary-drawer { transform: translateX(0); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- ════════ 사이드바 (240px) ════════ -->
+  <aside class="w-60 shrink-0 flex flex-col border-r" style="border-color: var(--border); background: var(--surface-1);">
+    <div class="h-14 flex items-center gap-2 px-4 border-b" style="border-color: var(--border);">
+      <!-- lucide: sun -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <span class="font-semibold text-sm">Solar Market Intelligence</span>
+    </div>
+
+    <nav class="flex-1 px-2 py-3 space-y-0.5 text-sm" style="color: var(--text-secondary);">
+      <a href="#" class="nav-item flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5" data-screen="supply" aria-current="page">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        전력수급 상황판
+      </a>
+      <a href="#" class="nav-item flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5" data-screen="market">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m7 14 4-4 4 4 5-6"/></svg>
+        발전량·가격 대시보드
+      </a>
+      <a href="#" class="nav-item flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5" data-screen="sim">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2"/></svg>
+        수익 시뮬레이터
+      </a>
+      <a href="#" class="nav-item flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5" data-screen="plants">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        내 발전소
+        <span class="ml-auto text-[10px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border);">검증용</span>
+      </a>
+
+      <div class="my-3 border-t" style="border-color: var(--border);"></div>
+
+      <a href="#" class="nav-item flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5" data-screen="forecast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8l4-4"/><circle cx="12" cy="14" r="8"/></svg>
+        예측 데모
+        <span class="ml-auto text-[10px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border);">P1</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5" data-screen="report">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg>
+        월간 리포트
+        <span class="ml-auto text-[10px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border);">P1</span>
+      </a>
+
+      <div class="my-3 border-t" style="border-color: var(--border);"></div>
+
+      <a href="#" class="nav-item flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5" data-screen="org">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        조직 관리
+      </a>
+    </nav>
+
+    <div class="px-4 py-3 text-[11px] border-t" style="border-color: var(--border); color: var(--text-muted);">
+      내부 시안 v4 · 데이터는 전부 더미 (표기만 실측 반영)
+    </div>
+  </aside>
+
+  <!-- ════════ 메인 ════════ -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- 헤더 (56px) -->
+    <header class="h-14 shrink-0 flex items-center gap-3 px-5 border-b" style="border-color: var(--border); background: var(--surface-1);">
+      <button class="flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm hover:bg-black/5 dark:hover:bg-white/5" style="border-color: var(--border);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+        (주)한빛오앤엠
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <div class="ml-auto flex items-center gap-2">
+        <button id="glossary-toggle" class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5" style="border-color: var(--border); color: var(--text-secondary);" title="용어 사전 열기">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          도움말
+        </button>
+        <button class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5" style="color: var(--text-secondary);" title="알림">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </button>
+        <button class="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm hover:bg-black/5 dark:hover:bg-white/5">
+          <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white" style="background: var(--series-1);">김</span>
+          <span>김분석</span>
+          <span class="text-[10px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--text-secondary);">analyst</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ════════ 화면 1: 전력수급 상황판 (§11.1) ════════ -->
+    <main id="screen-supply" data-screen-panel class="flex-1 overflow-y-auto p-6 space-y-5">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-lg font-semibold">전력수급 상황판</h1>
+            <span class="scope-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              전국 계통 기준
+            </span>
+          </div>
+          <p class="text-sm mt-1 max-w-xl" style="color: var(--text-secondary);">
+            지금 한국 전력계통이 얼마나 여유 있는지 보는 화면입니다.
+            예비율이 낮을수록 수급이 빠듯하고, 전력 도매가격(SMP)이 오르는 경향이 있습니다.
+          </p>
+        </div>
+        <div class="flex items-center gap-3 text-xs" style="color: var(--text-muted);">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full" style="background: var(--status-good);"></span>
+            수집 정상 · 15분 주기 (데모)
+          </span>
+          <span>기준시각 2026-07-02 14:35 KST</span>
+        </div>
+      </div>
+
+      <!-- KPI 카드 4개 (stat tile: label + value + delta) -->
+      <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="card p-4">
+          <div class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">현재수요 <button class="term" data-term="demand" aria-label="현재수요 설명">?</button></div>
+          <div class="mt-1 text-2xl font-semibold"><span id="kpi-demand">—</span> <span class="text-sm font-normal" style="color: var(--text-muted);">MW</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-bad);">▲ 2,180 MW 전일 동시각 대비</div>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">공급능력 <button class="term" data-term="capacity" aria-label="공급능력 설명">?</button></div>
+          <div class="mt-1 text-2xl font-semibold"><span id="kpi-capacity">—</span> <span class="text-sm font-normal" style="color: var(--text-muted);">MW</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-good);">▲ 850 MW 전일 동시각 대비</div>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">공급예비력 <button class="term" data-term="reserve" aria-label="공급예비력 설명">?</button></div>
+          <div class="mt-1 text-2xl font-semibold"><span id="kpi-reserve">—</span> <span class="text-sm font-normal" style="color: var(--text-muted);">MW</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-bad);">▼ 1,330 MW 전일 동시각 대비</div>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">
+            공급예비율 <button class="term" data-term="reserveRate" aria-label="공급예비율 설명">?</button>
+            <span id="kpi-status" class="ml-auto flex items-center gap-1 text-[11px] font-medium">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <span id="kpi-status-label">—</span>
+            </span>
+          </div>
+          <div class="mt-1 text-2xl font-semibold"><span id="kpi-reserve-rate">—</span> <span class="text-sm font-normal" style="color: var(--text-muted);">%</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-bad);">▼ 2.1 %p 전일 동시각 대비</div>
+        </div>
+      </div>
+
+      <!-- 24시간 그래프: 단위(MW vs %)가 다르므로 dual-axis 대신 상하 2개 차트 -->
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold">최근 24시간 수요·공급능력</h2>
+          <span class="text-xs" style="color: var(--text-muted);">MW · 15분 단위 (데모)</span>
+        </div>
+        <div id="chart-demand" class="mt-2" style="min-height: 260px;"></div>
+      </div>
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold">최근 24시간 공급예비율</h2>
+          <span class="text-xs" style="color: var(--text-muted);">% · 15분 단위 (데모)</span>
+        </div>
+        <div id="chart-reserve" class="mt-2" style="min-height: 200px;"></div>
+        <p class="mt-2 text-xs" style="color: var(--text-muted);">
+          읽는 법: 예비율이 높을수록 계통에 여유가 있다는 뜻입니다. 보통 낮 시간대 태양광 출력이 커지면 예비율도 함께 오릅니다.
+        </p>
+      </div>
+    </main>
+
+    <!-- ════════ 화면 2: 발전량·가격 대시보드 (§11.2) ════════ -->
+    <main id="screen-market" data-screen-panel class="flex-1 overflow-y-auto p-6 space-y-5 hidden">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-lg font-semibold">발전량·가격 대시보드</h1>
+            <span class="scope-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              공공데이터 · 광역시도 집계
+            </span>
+          </div>
+          <p class="text-sm mt-1 max-w-xl" style="color: var(--text-secondary);">
+            선택한 지역의 태양광 발전량과 시장 가격 흐름을 함께 봅니다.
+            개별 발전소가 아닌 한국전력거래소 공공데이터의 지역 단위 집계값입니다.
+          </p>
+        </div>
+        <span class="text-xs" style="color: var(--text-muted);">발전량 기준일 2026-04-30 · 원천 월 단위 갱신(약 2개월 지연) / REC 기준일 2026-07-01</span>
+      </div>
+
+      <!-- 필터 1행: 기간 preset 먼저, 그다음 지역 -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex rounded-lg border overflow-hidden text-sm" style="border-color: var(--border);">
+          <button class="px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5" style="color: var(--text-secondary);">7일</button>
+          <button class="px-3 py-1.5 font-semibold" style="background: color-mix(in oklab, var(--series-1) 12%, transparent);">30일</button>
+          <button class="px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5" style="color: var(--text-secondary);">90일</button>
+        </div>
+        <select id="region-select">
+          <option>경기</option><option>전남</option><option>전북</option><option>경북</option><option>경남</option><option>충남</option><option>충북</option><option>강원</option><option>제주</option><option>서울</option><option>인천</option><option>세종</option><option>대전</option><option>대구</option><option>광주</option><option>울산</option><option>부산</option>
+        </select>
+        <select>
+          <option>시장: 육지</option><option>시장: 제주</option>
+        </select>
+      </div>
+
+      <div class="grid xl:grid-cols-2 gap-4">
+        <!-- 지역별 발전량 지도 + 선택 지역 시계열 -->
+        <div class="card p-4 xl:col-span-2">
+          <div class="grid lg:grid-cols-[380px_1fr] gap-4">
+            <div>
+              <div class="flex items-baseline justify-between">
+                <h2 class="text-sm font-semibold">지역별 태양광 발전량</h2>
+                <span class="text-xs" style="color: var(--text-muted);">일 합계 · MWh</span>
+              </div>
+              <div id="chart-map" style="min-height: 400px;"></div>
+              <p class="text-xs -mt-2" style="color: var(--text-muted);">지도에서 지역을 클릭하면 오른쪽 추이가 해당 지역으로 바뀝니다.</p>
+            </div>
+            <div class="flex flex-col">
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 class="text-sm font-semibold">태양광 발전량 — <span id="gen-region-label">경기</span></h2>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--delta-good);">전일 +6.2%</span>
+                  <span class="rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--delta-good);">전주 +3.8%</span>
+                  <span class="rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--delta-bad);">전년 동월 −1.4%</span>
+                </div>
+              </div>
+              <div id="chart-gen" class="mt-2 flex-1" style="min-height: 360px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMP: 1주차 게이트 — 소스 검증 중 상태 -->
+        <div class="card p-4 flex flex-col">
+          <div class="flex items-baseline justify-between">
+            <h2 class="flex items-center gap-1.5 text-sm font-semibold">SMP — 육지 <button class="term" data-term="smp" aria-label="SMP 설명">?</button></h2>
+            <span class="text-xs" style="color: var(--text-muted);">원/kWh · 시간별</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center justify-center gap-2 py-10 text-center" style="min-height: 260px;">
+            <span class="flex items-center gap-1.5 text-xs font-medium rounded-full px-2.5 py-1 border" style="border-color: var(--border); color: var(--text-secondary);">
+              <span class="w-2 h-2 rounded-full" style="background: var(--status-warning);"></span>
+              데이터 소스 검증 중
+            </span>
+            <p class="text-xs max-w-xs" style="color: var(--text-muted);">
+              기존 계통한계가격조회 API가 삭제 예정으로 안내되어 대체 소스를 검증하고 있습니다.
+              검증 완료 전까지 SMP 시계열은 제공되지 않습니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- REC 평균가/종가 -->
+        <div class="card p-4">
+          <div class="flex items-baseline justify-between">
+            <h2 class="flex items-center gap-1.5 text-sm font-semibold">REC 현물시장 가격 <button class="term" data-term="rec" aria-label="REC 설명">?</button></h2>
+            <span class="text-xs" style="color: var(--text-muted);">원/REC · 거래일</span>
+          </div>
+          <div id="chart-rec" class="mt-2" style="min-height: 260px;"></div>
+        </div>
+      </div>
+
+      <!-- 데이터 한계 안내 -->
+      <div class="card px-4 py-3 text-xs leading-relaxed" style="color: var(--text-muted);">
+        데이터 한계: 발전량은 한국전력거래소 공공데이터의 광역시도·시간별 집계값으로 개별 발전소 실측값이 아니며,
+        원천이 월 단위로 갱신되어 최근 1~2개월 구간은 제공되지 않을 수 있습니다.
+        REC 가격은 현물시장 거래일(화·목) 기준이고 종가는 육지 시장 기준이며 계약시장 가격을 포함하지 않습니다. 출처: 한국전력거래소.
+      </div>
+    </main>
+
+    <!-- ════════ 화면 3: 수익 시뮬레이터 (§11.3) ════════ -->
+    <main id="screen-sim" data-screen-panel class="flex-1 overflow-y-auto p-6 space-y-5 hidden">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="text-lg font-semibold">수익 시뮬레이터</h1>
+          <span class="scope-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2"/></svg>
+            가정 기반 시뮬레이션
+          </span>
+        </div>
+        <p class="text-sm mt-1 max-w-xl" style="color: var(--text-secondary);">
+          내 설비 조건을 입력하면 예상 수익을 계산해 봅니다. 조건을 바꿔가며 여러 시나리오를 비교해 보세요.
+        </p>
+      </div>
+
+      <!-- 1순위 면책 (§13) -->
+      <div class="card px-4 py-3 flex items-start gap-2.5 text-sm" style="border-color: color-mix(in oklab, var(--status-warning) 50%, transparent);">
+        <svg class="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--status-warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></svg>
+        <p><strong>본 추정은 현물시장 노출 가정이며, 고정가격계약 사업자에게는 적용되지 않습니다.</strong>
+        실제 정산이 아닌 가정 기반 시뮬레이션입니다.</p>
+      </div>
+
+      <div class="grid lg:grid-cols-[320px_1fr] gap-4 items-start">
+        <!-- 입력 폼 -->
+        <div class="card p-4 space-y-3.5 text-sm">
+          <h2 class="text-sm font-semibold">시뮬레이션 조건</h2>
+          <label class="block">
+            <span class="text-xs" style="color: var(--text-secondary);">지역</span>
+            <select class="mt-1 w-full"><option>경기</option><option>전남</option><option>경북</option><option>충남</option><option>제주</option></select>
+          </label>
+          <label class="block">
+            <span class="text-xs" style="color: var(--text-secondary);">시장 구분</span>
+            <select class="mt-1 w-full"><option>육지</option><option>제주</option></select>
+          </label>
+          <label class="block">
+            <span class="text-xs" style="color: var(--text-secondary);">설비용량 (kW)</span>
+            <input type="number" value="998" class="mt-1 w-full tabular" />
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="block">
+              <span class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">REC 가중치 <button type="button" class="term tip-left" data-term="recWeight" aria-label="REC 가중치 설명">?</button></span>
+              <input type="number" value="1.0" step="0.1" class="mt-1 w-full tabular" />
+            </label>
+            <label class="block">
+              <span class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">중개 수수료율 (%) <button type="button" class="term tip-left" data-term="brokerFee" aria-label="중개 수수료율 설명">?</button></span>
+              <input type="number" value="1.0" step="0.1" class="mt-1 w-full tabular" />
+            </label>
+          </div>
+          <label class="block">
+            <span class="text-xs" style="color: var(--text-secondary);">기간</span>
+            <select class="mt-1 w-full"><option>2026-06 (1개월)</option><option>2026-01 ~ 2026-06 (6개월)</option></select>
+          </label>
+          <label class="block">
+            <span class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">발전량 산정 방식 <button type="button" class="term tip-left" data-term="genMethod" aria-label="발전량 산정 방식 설명">?</button></span>
+            <select class="mt-1 w-full"><option>지역 시간별 실적 비례</option><option>설비이용률 직접 입력</option></select>
+          </label>
+          <!-- SMP 소스 게이트: 사용자 입력 가격 -->
+          <label class="block">
+            <span class="text-xs flex items-center gap-1.5" style="color: var(--text-secondary);">
+              SMP 단가 (원/kWh)
+              <span class="text-[10px] rounded px-1 py-px border" style="border-color: var(--border); color: var(--status-warning);">직접 입력</span>
+            </span>
+            <input type="number" value="128.5" step="0.1" class="mt-1 w-full tabular" />
+            <span class="block mt-1 text-[11px]" style="color: var(--text-muted);">SMP 소스 검증 중 — 검증 완료 시 시장 데이터로 자동 대체됩니다.</span>
+          </label>
+          <label class="block">
+            <span class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">REC 가격 기준 <button type="button" class="term tip-left" data-term="recPrice" aria-label="REC 가격 기준 설명">?</button></span>
+            <select class="mt-1 w-full"><option>현물시장 평균가</option><option>현물시장 종가 (육지 기준)</option></select>
+          </label>
+          <button class="w-full rounded-lg py-2 text-sm font-semibold text-white" style="background: var(--series-1);">계산하기</button>
+        </div>
+
+        <!-- 결과 -->
+        <div class="space-y-4">
+          <div class="card p-5">
+            <div class="text-xs" style="color: var(--text-secondary);">총 예상 수익 (2026-06 · 수수료 차감 후)</div>
+            <!-- hero figure: 화면당 1개 -->
+            <div class="mt-1 font-semibold" style="font-size: 48px; line-height: 1.15;">₩21,604,000</div>
+            <p class="mt-1.5 text-xs" style="color: var(--text-muted);">
+              설비 1kW당 월 약 21,600원 수준입니다. 6월 발전 조건 기준이며 계절에 따라 달라집니다.
+            </p>
+            <div class="mt-4 grid grid-cols-2 xl:grid-cols-4 gap-3 text-sm">
+              <div>
+                <div class="text-xs" style="color: var(--text-secondary);">예상 발전량</div>
+                <div class="mt-0.5 font-semibold">107.8 MWh</div>
+              </div>
+              <div>
+                <div class="text-xs" style="color: var(--text-secondary);">SMP 수익</div>
+                <div class="mt-0.5 font-semibold">₩13,850,000</div>
+              </div>
+              <div>
+                <div class="text-xs" style="color: var(--text-secondary);">REC 수익</div>
+                <div class="mt-0.5 font-semibold">₩7,972,000</div>
+              </div>
+              <div>
+                <div class="text-xs" style="color: var(--text-secondary);">중개 수수료</div>
+                <div class="mt-0.5 font-semibold" style="color: var(--delta-bad);">−₩218,000</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-4">
+            <div class="flex items-baseline justify-between">
+              <h2 class="text-sm font-semibold">월별 수익 추이</h2>
+              <span class="text-xs" style="color: var(--text-muted);">2026-01 ~ 2026-06 · 만원</span>
+            </div>
+            <div id="chart-revenue" class="mt-2" style="min-height: 260px;"></div>
+          </div>
+
+          <div class="card px-4 py-3 text-xs leading-relaxed" style="color: var(--text-muted);">
+            계산 가정: 발전량은 같은 지역 공공데이터 실적에 설비용량을 비례 배분한 추정값입니다.
+            SMP 단가는 사용자 입력값을 전 시간대에 동일 적용하며, REC 수익은 발전량 × 가중치 × 선택 기준가로 계산합니다.
+            세금·계통 접속 비용·설비 감가는 포함하지 않습니다. 본 결과는 법적·회계적 정산 근거로 사용할 수 없습니다.
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════ 화면 4: 내 발전소 대시보드 (검증용 — 계획서 §4 외) ════════ -->
+    <main id="screen-plants" data-screen-panel class="flex-1 overflow-y-auto p-6 space-y-5 hidden">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="text-lg font-semibold">내 발전소</h1>
+          <span class="scope-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            내 조직 데이터
+          </span>
+        </div>
+        <p class="text-sm mt-1 max-w-xl" style="color: var(--text-secondary);">
+          CSV로 업로드한 우리 발전소 실적을 같은 지역 평균과 비교합니다. 이 화면은 조직 구성원에게만 보입니다.
+        </p>
+      </div>
+
+      <!-- 발전소 목록 -->
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="card p-4 ring-1" style="--tw-ring-color: var(--series-1);">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-semibold">해남 1호기</div>
+            <span class="text-[10px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--text-secondary);">전남 · 998kW</span>
+          </div>
+          <div class="mt-2 text-2xl font-semibold">14.9 <span class="text-sm font-normal" style="color: var(--text-muted);">% 이용률</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-good);">▲ 0.8%p 전월 대비 · 6월 발전량 107.2 MWh</div>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-semibold">해남 2호기</div>
+            <span class="text-[10px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--text-secondary);">전남 · 499kW</span>
+          </div>
+          <div class="mt-2 text-2xl font-semibold">14.2 <span class="text-sm font-normal" style="color: var(--text-muted);">% 이용률</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-good);">▲ 0.3%p 전월 대비 · 6월 발전량 51.0 MWh</div>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-semibold">영암 1호기</div>
+            <span class="text-[10px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--text-secondary);">전남 · 748kW</span>
+          </div>
+          <div class="mt-2 text-2xl font-semibold">13.1 <span class="text-sm font-normal" style="color: var(--text-muted);">% 이용률</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-bad);">▼ 0.5%p 전월 대비 · 6월 발전량 70.5 MWh</div>
+        </div>
+      </div>
+
+      <!-- 내 발전소 vs 지역 평균 -->
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between">
+          <h2 class="flex items-center gap-1.5 text-sm font-semibold">해남 1호기 vs 전남 평균 <button class="term" data-term="capacityFactor" aria-label="설비이용률 설명">?</button></h2>
+          <span class="text-xs" style="color: var(--text-muted);">설비이용률 % · 최근 30일</span>
+        </div>
+        <div id="chart-plant" class="mt-2" style="min-height: 280px;"></div>
+        <p class="mt-2 text-xs" style="color: var(--text-muted);">
+          읽는 법: 내 발전소가 지역 평균보다 계속 낮다면 설비 점검(패널 오염, 인버터 효율 저하 등)을 검토할 신호일 수 있습니다.
+        </p>
+      </div>
+
+      <div class="card px-4 py-3 text-xs leading-relaxed" style="color: var(--text-muted);">
+        지역 평균은 한국전력거래소 공공데이터의 광역시도 집계값을 설비용량으로 환산한 참고치입니다.
+        내 발전소 실적은 업로드한 CSV 기준이며, 계량기 검침값과 다를 수 있습니다.
+      </div>
+    </main>
+
+    <!-- ════════ 화면 5: 예측 데모 (P1) ════════ -->
+    <main id="screen-forecast" data-screen-panel class="flex-1 overflow-y-auto p-6 space-y-5 hidden">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-lg font-semibold">예측 데모</h1>
+            <span class="scope-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8l4-4"/><circle cx="12" cy="14" r="8"/></svg>
+              baseline 모델 · 지속 개선 중
+            </span>
+          </div>
+          <p class="text-sm mt-1 max-w-xl" style="color: var(--text-secondary);">
+            공공 기상·일사량 데이터로 지역 단위 태양광 발전량을 하루 앞서 예측해 봅니다.
+            어제 예측이 실제와 얼마나 맞았는지 함께 보여 드립니다.
+          </p>
+        </div>
+        <span class="text-xs" style="color: var(--text-muted);">모델 v0.3 · 실행 2026-07-02 05:10 KST</span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <select><option>전남</option><option>경기</option><option>경북</option><option>충남</option><option>제주</option></select>
+        <select><option>2026-07-01 (어제 — 실제와 비교)</option><option>2026-07-03 (내일 — 예측만)</option></select>
+      </div>
+
+      <!-- 오차 스탯 카드 -->
+      <div class="grid grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="card p-4">
+          <div class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">MAE <button class="term" data-term="mae" aria-label="MAE 설명">?</button></div>
+          <div class="mt-1 text-2xl font-semibold">38.2 <span class="text-sm font-normal" style="color: var(--text-muted);">MWh</span></div>
+          <div class="mt-1 text-xs" style="color: var(--text-muted);">2026-07-01 · 전남 · 시간별 평균</div>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center gap-1.5 text-xs" style="color: var(--text-secondary);">MAPE <button class="term" data-term="mape" aria-label="MAPE 설명">?</button></div>
+          <div class="mt-1 text-2xl font-semibold">9.4 <span class="text-sm font-normal" style="color: var(--text-muted);">%</span></div>
+          <div class="mt-1 text-xs" style="color: var(--delta-good);">▼ 1.1%p 최근 7일 평균 대비</div>
+        </div>
+        <div class="card p-4 col-span-2 xl:col-span-1">
+          <div class="text-xs" style="color: var(--text-secondary);">날씨 · 일사량 (2026-07-01, 전남)</div>
+          <div class="mt-1 flex items-center gap-3">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--status-warning)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <div>
+              <div class="text-sm font-semibold">맑음 · 구름 20%</div>
+              <div class="text-xs" style="color: var(--text-muted);">일사량 5.8 kWh/m² · 최고 31℃</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 예측 vs 실제 -->
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold">시간별 예측 vs 실제 — 전남, 2026-07-01</h2>
+          <span class="text-xs" style="color: var(--text-muted);">MWh · 시간별</span>
+        </div>
+        <div id="chart-forecast" class="mt-2" style="min-height: 300px;"></div>
+        <p class="mt-2 text-xs" style="color: var(--text-muted);">
+          읽는 법: 두 선이 가까울수록 예측이 정확했다는 뜻입니다. 구름이 갑자기 낀 시간대는 오차가 커질 수 있습니다.
+        </p>
+      </div>
+
+      <div class="card px-4 py-3 text-xs leading-relaxed" style="color: var(--text-muted);">
+        예측 한계: 지역 단위 집계 예측이며 개별 발전소 예측이 아닙니다. baseline 모델(최근 실적 중앙값 + 요일·계절 + 날씨 보정)으로,
+        급격한 기상 변화 시 오차가 커집니다. 거래·정산 목적으로 사용할 수 없습니다.
+      </div>
+    </main>
+
+    <!-- ════════ 화면 6: 월간 리포트 (P1) ════════ -->
+    <main id="screen-report" data-screen-panel class="flex-1 overflow-y-auto p-6 space-y-5 hidden">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-lg font-semibold">월간 리포트</h1>
+            <span class="scope-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              고객 전달용 산출물
+            </span>
+          </div>
+          <p class="text-sm mt-1 max-w-xl" style="color: var(--text-secondary);">
+            한 달 치 수급·발전량·가격·수익 시뮬레이션을 한 장으로 정리합니다. 그대로 인쇄하거나 고객사에 전달할 수 있습니다.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select><option>2026년 6월</option><option>2026년 5월</option></select>
+          <button class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-white opacity-50 cursor-not-allowed" style="background: var(--series-1);" title="데모에서는 준비 중입니다">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            PDF 다운로드
+          </button>
+        </div>
+      </div>
+
+      <!-- A4 미리보기 -->
+      <div class="mx-auto w-full max-w-3xl card p-8 space-y-6" style="aspect-ratio: auto;">
+        <div class="border-b pb-4" style="border-color: var(--border);">
+          <div class="text-xs" style="color: var(--text-muted);">Solar Market Intelligence · 월간 리포트</div>
+          <div class="mt-1 text-xl font-semibold">(주)한빛오앤엠 — 2026년 6월</div>
+          <div class="mt-0.5 text-xs" style="color: var(--text-muted);">생성 2026-07-02 · 데이터 출처: 한국전력거래소, 기상청</div>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold">1. 전력수급 요약</h3>
+          <p class="mt-1 text-sm leading-relaxed" style="color: var(--text-secondary);">
+            6월 최대수요는 82,410MW(6/24 15시), 최저 예비율은 11.2%였습니다. 전년 동월 대비 평균 수요가 3.1% 증가했습니다.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold">2. 전남 태양광 발전량</h3>
+          <div id="chart-report-gen" class="mt-2" style="min-height: 180px;"></div>
+          <p class="mt-1 text-xs" style="color: var(--text-muted);">일 합계 기준. 6월 총 발전량 128.4 GWh, 전월 대비 +4.2%.</p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold">3. 시장 가격</h3>
+          <p class="mt-1 text-sm leading-relaxed" style="color: var(--text-secondary);">
+            REC 현물시장 평균가는 74,530원/REC로 전월 대비 +1.8%였습니다.
+            SMP는 데이터 소스 검증 중으로 이번 달 리포트에서 제외했습니다.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold">4. 수익 시뮬레이션 (가상 998kW 설비)</h3>
+          <p class="mt-1 text-sm leading-relaxed" style="color: var(--text-secondary);">
+            사용자 입력 SMP 128.5원/kWh 기준 총 예상 수익 21,604,000원 (SMP 13,850,000 + REC 7,972,000 − 수수료 218,000).
+          </p>
+        </div>
+
+        <div class="border-t pt-4 text-xs leading-relaxed" style="border-color: var(--border); color: var(--text-muted);">
+          데이터 한계 및 가정: 본 리포트의 수익은 실제 정산이 아닌 가정 기반 시뮬레이션이며, 현물시장 노출을 가정합니다.
+          발전량은 공공데이터 지역 집계값입니다. 법적·회계적 근거 자료로 사용할 수 없습니다.
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════ 화면 7: 조직 관리 ════════ -->
+    <main id="screen-org" data-screen-panel class="flex-1 overflow-y-auto p-6 space-y-5 hidden">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="text-lg font-semibold">조직 관리</h1>
+          <span class="scope-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            owner 이상 접근
+          </span>
+        </div>
+        <p class="text-sm mt-1 max-w-xl" style="color: var(--text-secondary);">
+          조직 구성원과 권한을 관리합니다. 초대 링크는 7일간 유효하며, 모든 권한 변경은 기록됩니다.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-[1fr_340px] gap-4 items-start">
+        <!-- 멤버 목록 -->
+        <div class="card">
+          <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--border);">
+            <h2 class="text-sm font-semibold">구성원 4명</h2>
+          </div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-xs text-left" style="color: var(--text-muted);">
+                <th class="px-4 py-2 font-medium">이름</th>
+                <th class="px-4 py-2 font-medium">이메일</th>
+                <th class="px-4 py-2 font-medium">역할</th>
+                <th class="px-4 py-2 font-medium"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t" style="border-color: var(--border);">
+                <td class="px-4 py-2.5 font-medium">박대표</td>
+                <td class="px-4 py-2.5" style="color: var(--text-secondary);">ceo@hanbit-om.kr</td>
+                <td class="px-4 py-2.5"><span class="text-[11px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border);">owner</span></td>
+                <td class="px-4 py-2.5 text-right text-xs" style="color: var(--text-muted);">—</td>
+              </tr>
+              <tr class="border-t" style="border-color: var(--border);">
+                <td class="px-4 py-2.5 font-medium">김분석</td>
+                <td class="px-4 py-2.5" style="color: var(--text-secondary);">kim@hanbit-om.kr</td>
+                <td class="px-4 py-2.5"><span class="text-[11px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border);">analyst</span></td>
+                <td class="px-4 py-2.5 text-right"><button class="text-xs hover:underline" style="color: var(--series-1);">역할 변경</button></td>
+              </tr>
+              <tr class="border-t" style="border-color: var(--border);">
+                <td class="px-4 py-2.5 font-medium">이운영</td>
+                <td class="px-4 py-2.5" style="color: var(--text-secondary);">lee@hanbit-om.kr</td>
+                <td class="px-4 py-2.5"><span class="text-[11px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border);">admin</span></td>
+                <td class="px-4 py-2.5 text-right"><button class="text-xs hover:underline" style="color: var(--series-1);">역할 변경</button></td>
+              </tr>
+              <tr class="border-t" style="border-color: var(--border);">
+                <td class="px-4 py-2.5 font-medium" style="color: var(--text-muted);">choi@partner.kr</td>
+                <td class="px-4 py-2.5 text-xs" style="color: var(--text-muted);">초대 대기 중 · 7/8 만료</td>
+                <td class="px-4 py-2.5"><span class="text-[11px] font-medium rounded px-1.5 py-0.5 border" style="border-color: var(--border); color: var(--text-muted);">viewer</span></td>
+                <td class="px-4 py-2.5 text-right"><button class="text-xs hover:underline" style="color: var(--series-1);">재발송</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="space-y-4">
+          <!-- 초대 -->
+          <div class="card p-4 space-y-3">
+            <h2 class="text-sm font-semibold">구성원 초대</h2>
+            <input type="text" placeholder="email@company.kr" class="w-full" />
+            <select class="w-full">
+              <option>viewer — 대시보드/리포트 조회</option>
+              <option>analyst — 조회 + 시뮬레이션/리포트 생성</option>
+              <option>admin — 분석 + 발전소/업로드 관리</option>
+            </select>
+            <button class="w-full rounded-lg py-2 text-sm font-semibold text-white" style="background: var(--series-1);">초대 보내기</button>
+            <p class="text-[11px]" style="color: var(--text-muted);">초대 링크는 7일간 유효합니다. 만료 시 재발송할 수 있습니다.</p>
+          </div>
+
+          <!-- 감사 로그 -->
+          <div class="card p-4">
+            <h2 class="text-sm font-semibold">최근 활동</h2>
+            <ul class="mt-2 space-y-2 text-xs" style="color: var(--text-secondary);">
+              <li class="flex gap-2"><span class="shrink-0" style="color: var(--text-muted);">7/2 09:14</span> 박대표 님이 choi@partner.kr을 viewer로 초대</li>
+              <li class="flex gap-2"><span class="shrink-0" style="color: var(--text-muted);">7/1 17:40</span> 김분석 님이 6월 리포트 생성</li>
+              <li class="flex gap-2"><span class="shrink-0" style="color: var(--text-muted);">7/1 10:22</span> 이운영 님이 해남 1호기 CSV 업로드</li>
+              <li class="flex gap-2"><span class="shrink-0" style="color: var(--text-muted);">6/30 15:03</span> 박대표 님이 이운영 님 역할을 admin으로 변경</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- ════════ 용어 사전 drawer ════════ -->
+<div id="glossary-backdrop"></div>
+<aside id="glossary-drawer" aria-label="용어 사전">
+  <div class="h-14 shrink-0 flex items-center justify-between px-4 border-b" style="border-color: var(--border);">
+    <h2 class="text-sm font-semibold">용어 사전</h2>
+    <button id="glossary-close" class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5" style="color: var(--text-secondary);" aria-label="닫기">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="glossary-list" class="flex-1 overflow-y-auto px-4 py-3 space-y-4"></div>
+  <div class="px-4 py-3 text-[11px] border-t" style="border-color: var(--border); color: var(--text-muted);">
+    각 화면의 <span class="term" style="cursor: default;">?</span> 아이콘에서도 같은 설명을 볼 수 있습니다.
+  </div>
+</aside>
+
+<script>
+/* ── 용어 사전 (툴팁·drawer 단일 소스) ────────────────────────── */
+const TERMS = {
+  demand:     { name: '현재수요',       unit: 'MW',     desc: '지금 이 순간 전국에서 사용 중인 전력의 총량입니다.' },
+  capacity:   { name: '공급능력',       unit: 'MW',     desc: '지금 발전소들이 최대로 공급할 수 있는 전력의 총량입니다.' },
+  reserve:    { name: '공급예비력',     unit: 'MW',     desc: '공급능력에서 현재수요를 뺀 여유분입니다. 5,500MW 미만으로 내려가면 전력수급 비상단계(준비)가 시작됩니다.' },
+  reserveRate:{ name: '공급예비율',     unit: '%',      desc: '여유분(예비력)이 현재수요의 몇 %인지를 나타냅니다. 높을수록 계통에 여유가 있다는 뜻입니다.' },
+  smp:        { name: 'SMP (계통한계가격)', unit: '원/kWh', desc: '발전사가 생산한 전력을 판매할 때 적용되는 시간별 도매 단가입니다. 육지와 제주가 따로 정해집니다.' },
+  rec:        { name: 'REC (신재생에너지 공급인증서)', unit: '원/REC', desc: '신재생에너지로 1MWh를 발전하면 발급되는 인증서입니다. 현물시장에서 거래되며 태양광 수익의 큰 축입니다.' },
+  recWeight:  { name: 'REC 가중치',     unit: '배',     desc: '설비 유형·규모에 따라 REC 발급량에 곱해지는 계수입니다. 예: 일반부지 태양광 1.0, 건축물 활용 시 1.5.' },
+  brokerFee:  { name: '중개 수수료율',  unit: '%',      desc: '전력거래 중개사업자를 통해 거래할 때 판매 수익에서 차감되는 수수료 비율입니다.' },
+  genMethod:  { name: '발전량 산정 방식', unit: '',      desc: '"지역 실적 비례"는 같은 지역의 공공데이터 발전 실적을 내 설비용량에 비례 배분해 추정합니다. 설비이용률을 직접 입력할 수도 있습니다.' },
+  recPrice:   { name: 'REC 가격 기준',  unit: '',       desc: '수익 계산에 현물시장 평균가를 쓸지 종가를 쓸지 선택합니다. 종가는 육지 시장 기준 단일값입니다(제주는 별도 평균가 참고). 평균가가 좀 더 보수적인 기준입니다.' },
+  capacityFactor: { name: '설비이용률', unit: '%',      desc: '설비가 최대 출력으로 쉬지 않고 돌았다고 가정했을 때 대비 실제 발전량의 비율입니다. 국내 태양광은 보통 13~17% 수준입니다.' },
+  marketArea: { name: '육지/제주 시장', unit: '',       desc: '제주는 계통이 분리되어 SMP가 육지와 따로 정해집니다. 설비 위치에 맞는 시장을 선택하세요.' },
+  mae:        { name: 'MAE (평균절대오차)', unit: 'MWh', desc: '예측이 실제와 평균 몇 MWh 어긋났는지입니다. 작을수록 정확합니다.' },
+  mape:       { name: 'MAPE (평균절대백분율오차)', unit: '%', desc: '오차를 실제값 대비 %로 나타낸 지표입니다. 10%면 실제의 ±10% 안팎으로 맞췄다는 뜻입니다.' },
+};
+
+/* 툴팁: data-term → data-tip 주입 (CSS ::after가 표시) */
+document.querySelectorAll('.term[data-term]').forEach((el) => {
+  const t = TERMS[el.dataset.term];
+  if (t) el.setAttribute('data-tip', t.unit ? `${t.name} (${t.unit}) — ${t.desc}` : `${t.name} — ${t.desc}`);
+});
+
+/* drawer: TERMS를 그대로 렌더 (textContent만 사용) */
+const glossaryList = document.getElementById('glossary-list');
+Object.values(TERMS).forEach((t) => {
+  const item = document.createElement('div');
+  const head = document.createElement('div');
+  head.className = 'flex items-baseline gap-1.5';
+  const name = document.createElement('span');
+  name.className = 'text-sm font-semibold';
+  name.textContent = t.name;
+  head.appendChild(name);
+  if (t.unit) {
+    const unit = document.createElement('span');
+    unit.className = 'text-[11px]';
+    unit.style.color = 'var(--text-muted)';
+    unit.textContent = t.unit;
+    head.appendChild(unit);
+  }
+  const desc = document.createElement('p');
+  desc.className = 'mt-0.5 text-xs leading-relaxed';
+  desc.style.color = 'var(--text-secondary)';
+  desc.textContent = t.desc;
+  item.append(head, desc);
+  glossaryList.appendChild(item);
+});
+
+/* drawer 열기/닫기 */
+const setGlossary = (open) => document.body.classList.toggle('glossary-open', open);
+document.getElementById('glossary-toggle').addEventListener('click', () => setGlossary(true));
+document.getElementById('glossary-close').addEventListener('click', () => setGlossary(false));
+document.getElementById('glossary-backdrop').addEventListener('click', () => setGlossary(false));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setGlossary(false); });
+if (new URLSearchParams(location.search).has('glossary')) setGlossary(true); // 공유/검수용
+
+/* ── 토큰 헬퍼: CSS 변수에서 읽어 라이트/다크 자동 반영 ─────────── */
+const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const tokens = () => ({
+  s1: cssVar('--series-1'),
+  s2: cssVar('--series-2'),
+  surface: cssVar('--surface-1'),
+  grid: cssVar('--grid'),
+  axis: cssVar('--axis'),
+  muted: cssVar('--text-muted'),
+  secondary: cssVar('--text-secondary'),
+  primary: cssVar('--text-primary'),
+});
+
+/* 공통 옵션 조각 (mark spec: 2px 라인, hairline 그리드, crosshair tooltip) */
+const baseAxis = (t) => ({
+  axisLine: { lineStyle: { color: t.axis } },
+  axisTick: { show: false },
+  axisLabel: { color: t.muted, fontSize: 11 },
+  splitLine: { lineStyle: { color: t.grid, width: 1 } },
+});
+const baseTooltip = (t) => ({
+  trigger: 'axis',
+  axisPointer: { type: 'line', lineStyle: { color: t.axis } },
+  backgroundColor: t.surface,
+  borderColor: t.grid,
+  textStyle: { color: t.primary, fontSize: 12 },
+});
+const baseGrid = { left: 56, right: 16, top: 32, bottom: 28 };
+/* endLabel(직접 라벨)이 있는 차트는 우측 여백을 넉넉히 — 라벨 클리핑 방지 */
+const gridWithEndLabel = { ...baseGrid, right: 72 };
+
+/* ── 더미 데이터 (결정적 생성) ─────────────────────────────── */
+// 24시간 × 5분 대신 시안은 30분 해상도로 48포인트
+const hh = Array.from({ length: 48 }, (_, i) => {
+  const h = String(Math.floor(i / 2) + 14).padStart(2, '0');
+  return `${(Number(h) % 24).toString().padStart(2, '0')}:${i % 2 ? '30' : '00'}`;
+});
+const demand = hh.map((_, i) => Math.round(66000 + 12000 * Math.exp(-((i - 46) ** 2) / 300) + 6000 * Math.sin(i / 7) ));
+const capacity = hh.map((_, i) => Math.round(91000 + 900 * Math.sin(i / 11)));
+const reserveRate = demand.map((d, i) => +(((capacity[i] - d) / d) * 100).toFixed(1));
+
+const days30 = Array.from({ length: 30 }, (_, i) => `6/${i + 1}`);
+const genDaily = days30.map((_, i) => Math.round(4200 + 900 * Math.sin(i / 4) + (i % 7 === 3 ? -1600 : 0)));
+const recAvg = days30.map((_, i) => Math.round(74200 + 700 * Math.sin(i / 5) + i * 18));
+const recClose = recAvg.map((v, i) => v + Math.round(320 * Math.sin(i / 3 + 1)));
+
+const months = ['1월', '2월', '3월', '4월', '5월', '6월'];
+const smpRev = [1020, 1130, 1290, 1350, 1410, 1385]; // 만원
+const recRev = [590, 640, 730, 760, 810, 797];
+
+// 지도: 시도별 일 발전량 (MWh, 더미) — GeoJSON의 name과 일치해야 함
+const REGION_GEN = {
+  '전라남도': 5840, '경상북도': 4920, '전라북도': 4310, '충청남도': 4150,
+  '경기도': 3480, '경상남도': 3120, '강원도': 2660, '충청북도': 2380,
+  '제주특별자치도': 1240, '인천광역시': 610, '세종특별자치시': 420, '울산광역시': 390,
+  '대구광역시': 350, '광주광역시': 330, '부산광역시': 310, '대전광역시': 210, '서울특별시': 90,
+};
+const REGION_SHORT = { '전라남도': '전남', '경상북도': '경북', '전라북도': '전북', '충청남도': '충남', '경기도': '경기', '경상남도': '경남', '강원도': '강원', '충청북도': '충북', '제주특별자치도': '제주', '인천광역시': '인천', '세종특별자치시': '세종', '울산광역시': '울산', '대구광역시': '대구', '광주광역시': '광주', '부산광역시': '부산', '대전광역시': '대전', '서울특별시': '서울' };
+
+// 내 발전소 vs 지역 평균 (설비이용률 %, 30일)
+const plantCf = days30.map((_, i) => +(14.9 + 2.2 * Math.sin(i / 5) + (i % 9 === 4 ? -3.5 : 0)).toFixed(1));
+const regionCf = days30.map((_, i) => +(14.1 + 2.0 * Math.sin(i / 5 + 0.3)).toFixed(1));
+
+// 예측 vs 실제 (시간별 MWh, 종 모양)
+const hours24 = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}시`);
+const bell = (i, peak, width) => Math.max(0, Math.round(peak * Math.exp(-((i - 13) ** 2) / width)));
+const fcActual = hours24.map((_, i) => bell(i, 720, 14) + (i === 11 ? -120 : 0)); // 11시 구름 급변 가정
+const fcPredict = hours24.map((_, i) => bell(i, 700, 15));
+
+/* KPI 카드는 차트 더미 데이터의 마지막 값과 일치시킨다 (숫자 불일치 방지) */
+const last = (a) => a[a.length - 1];
+const reserveMw = last(capacity) - last(demand);
+document.getElementById('kpi-demand').textContent = last(demand).toLocaleString();
+document.getElementById('kpi-capacity').textContent = last(capacity).toLocaleString();
+document.getElementById('kpi-reserve').textContent = reserveMw.toLocaleString();
+document.getElementById('kpi-reserve-rate').textContent = last(reserveRate).toFixed(1);
+
+/* 수치 해석: 예비력(MW) 기준 상태 배지 — 전력수급 비상단계는 5,500MW 미만부터 */
+const statusEl = document.getElementById('kpi-status');
+const statusLabel = document.getElementById('kpi-status-label');
+if (reserveMw >= 5500) {
+  statusEl.style.color = 'var(--status-good)';
+  statusLabel.textContent = '안정';
+} else {
+  statusEl.style.color = 'var(--status-warning)';
+  statusLabel.textContent = '주의';
+}
+statusEl.title = '예비력 5,500MW 미만부터 전력수급 비상단계가 시작됩니다.';
+
+/* ── 차트 정의 ────────────────────────────────────────────── */
+const chartDefs = {
+  'chart-demand': (t) => ({
+    tooltip: baseTooltip(t),
+    grid: gridWithEndLabel,
+    // 시리즈 2개 → legend 필수 (aqua는 light 3:1 미만 → relief)
+    legend: { top: 0, left: 0, icon: 'rect', itemWidth: 12, itemHeight: 3, textStyle: { color: t.secondary, fontSize: 11 } },
+    xAxis: { type: 'category', data: hh, boundaryGap: false, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', min: 55000, ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: (v) => v.toLocaleString() } },
+    series: [
+      { name: '현재수요', type: 'line', data: demand, symbol: 'none', lineStyle: { width: 2, color: t.s1 }, itemStyle: { color: t.s1 },
+        endLabel: { show: true, formatter: '현재수요', color: t.secondary, fontSize: 11, distance: 6 } },
+      { name: '공급능력', type: 'line', data: capacity, symbol: 'none', lineStyle: { width: 2, color: t.s2 }, itemStyle: { color: t.s2 },
+        endLabel: { show: true, formatter: '공급능력', color: t.secondary, fontSize: 11, distance: 6 } },
+    ],
+  }),
+  'chart-reserve': (t) => ({
+    tooltip: baseTooltip(t),
+    grid: { ...baseGrid, top: 16 },
+    xAxis: { type: 'category', data: hh, boundaryGap: false, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: '{value}%' } },
+    // 단일 시리즈 → legend 없음 (제목이 시리즈명)
+    series: [
+      { name: '공급예비율', type: 'line', data: reserveRate, symbol: 'none',
+        lineStyle: { width: 2, color: t.s1 }, itemStyle: { color: t.s1 },
+        areaStyle: { color: t.s1, opacity: 0.1 } },
+    ],
+  }),
+  'chart-gen': (t) => ({
+    tooltip: baseTooltip(t),
+    grid: { ...baseGrid, top: 16 },
+    xAxis: { type: 'category', data: days30, boundaryGap: false, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', name: 'MWh', nameTextStyle: { color: t.muted }, ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: (v) => v.toLocaleString() } },
+    series: [
+      { name: '태양광 발전량', type: 'line', data: genDaily, symbol: 'none',
+        lineStyle: { width: 2, color: t.s1 }, itemStyle: { color: t.s1 },
+        areaStyle: { color: t.s1, opacity: 0.1 } },
+    ],
+  }),
+  'chart-rec': (t) => ({
+    tooltip: baseTooltip(t),
+    grid: gridWithEndLabel,
+    legend: { top: 0, left: 0, icon: 'rect', itemWidth: 12, itemHeight: 3, textStyle: { color: t.secondary, fontSize: 11 } },
+    xAxis: { type: 'category', data: days30, boundaryGap: false, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', min: 72000, ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: (v) => v.toLocaleString() } },
+    series: [
+      { name: '평균가', type: 'line', data: recAvg, symbol: 'none', lineStyle: { width: 2, color: t.s1 }, itemStyle: { color: t.s1 },
+        endLabel: { show: true, formatter: '평균가', color: t.secondary, fontSize: 11, distance: 6 } },
+      { name: '종가', type: 'line', data: recClose, symbol: 'none', lineStyle: { width: 2, color: t.s2 }, itemStyle: { color: t.s2 },
+        endLabel: { show: true, formatter: '종가', color: t.secondary, fontSize: 11, distance: 6 } },
+    ],
+  }),
+  'chart-map': (t) => ({
+    // choropleth: 파랑 단일 색상 밝음→어둠 (sequential — 크기 인코딩)
+    tooltip: {
+      backgroundColor: t.surface, borderColor: t.grid,
+      textStyle: { color: t.primary, fontSize: 12 },
+      formatter: (p) => `${p.name}<br/><strong>${(p.value ?? 0).toLocaleString()} MWh</strong>`,
+    },
+    visualMap: {
+      min: 0, max: 6000, left: 0, bottom: 0,
+      text: ['높음', '낮음'], textStyle: { color: t.muted, fontSize: 11 },
+      inRange: { color: ['#cde2fb', '#0d366b'] }, // sequential blue 100→700
+      calculable: false, itemWidth: 12, itemHeight: 80,
+    },
+    series: [{
+      name: '태양광 발전량', type: 'map', map: 'korea',
+      roam: false, selectedMode: 'single',
+      itemStyle: { borderColor: t.surface, borderWidth: 1 },
+      emphasis: { label: { show: true, color: t.primary, fontSize: 11 }, itemStyle: { areaColor: undefined, borderColor: t.primary, borderWidth: 1.5 } },
+      select: { label: { show: true, color: t.primary, fontWeight: 600 }, itemStyle: { borderColor: t.primary, borderWidth: 2 } },
+      label: { show: false },
+      data: Object.entries(REGION_GEN).map(([name, value]) => ({ name, value, selected: name === '경기도' })),
+    }],
+  }),
+  'chart-plant': (t) => ({
+    tooltip: baseTooltip(t),
+    grid: baseGrid,
+    legend: { top: 0, left: 0, icon: 'rect', itemWidth: 12, itemHeight: 3, textStyle: { color: t.secondary, fontSize: 11 } },
+    xAxis: { type: 'category', data: days30, boundaryGap: false, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: '{value}%' } },
+    series: [
+      // emphasis 패턴: 내 발전소가 주인공(파랑), 지역 평균은 회색 컨텍스트.
+      // 선이 우측에서 수렴해 endLabel이 겹치므로 legend만 사용 (dataviz 규칙).
+      { name: '해남 1호기', type: 'line', data: plantCf, symbol: 'none', lineStyle: { width: 2, color: t.s1 }, itemStyle: { color: t.s1 } },
+      { name: '전남 평균', type: 'line', data: regionCf, symbol: 'none', lineStyle: { width: 2, color: t.muted }, itemStyle: { color: t.muted } },
+    ],
+  }),
+  'chart-forecast': (t) => ({
+    tooltip: baseTooltip(t),
+    grid: baseGrid,
+    // 밤 시간대에 두 선이 0으로 수렴 → endLabel 충돌하므로 legend만 (dataviz 규칙)
+    legend: { top: 0, left: 0, icon: 'rect', itemWidth: 12, itemHeight: 3, textStyle: { color: t.secondary, fontSize: 11 } },
+    xAxis: { type: 'category', data: hours24, boundaryGap: false, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: (v) => v.toLocaleString() } },
+    series: [
+      { name: '실제', type: 'line', data: fcActual, symbol: 'none', lineStyle: { width: 2, color: t.s1 }, itemStyle: { color: t.s1 } },
+      { name: '예측', type: 'line', data: fcPredict, symbol: 'none', lineStyle: { width: 2, type: [4, 4], color: t.s2 }, itemStyle: { color: t.s2 } },
+    ],
+  }),
+  'chart-report-gen': (t) => ({
+    tooltip: baseTooltip(t),
+    grid: { left: 48, right: 12, top: 12, bottom: 24 },
+    xAxis: { type: 'category', data: days30, boundaryGap: false, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: (v) => v.toLocaleString() } },
+    series: [
+      { name: '태양광 발전량', type: 'line', data: genDaily, symbol: 'none',
+        lineStyle: { width: 2, color: t.s1 }, itemStyle: { color: t.s1 },
+        areaStyle: { color: t.s1, opacity: 0.1 } },
+    ],
+  }),
+  'chart-revenue': (t) => ({
+    tooltip: { ...baseTooltip(t), axisPointer: { type: 'none' } },
+    grid: baseGrid,
+    legend: { top: 0, left: 0, icon: 'rect', itemWidth: 12, itemHeight: 8, textStyle: { color: t.secondary, fontSize: 11 } },
+    xAxis: { type: 'category', data: months, ...baseAxis(t), splitLine: { show: false } },
+    yAxis: { type: 'value', name: '만원', nameTextStyle: { color: t.muted }, ...baseAxis(t), axisLine: { show: false }, axisLabel: { ...baseAxis(t).axisLabel, formatter: (v) => v.toLocaleString() } },
+    series: [
+      // 스택 세그먼트 사이 2px surface gap: surface색 border로 구현
+      { name: 'SMP 수익', type: 'bar', stack: 'rev', data: smpRev, barWidth: 24,
+        itemStyle: { color: t.s1, borderColor: t.surface, borderWidth: 1 } },
+      { name: 'REC 수익', type: 'bar', stack: 'rev', data: recRev, barWidth: 24,
+        itemStyle: { color: t.s2, borderColor: t.surface, borderWidth: 1, borderRadius: [4, 4, 0, 0] } },
+    ],
+  }),
+};
+
+/* ── 지도 GeoJSON 로드 (CDN — 오프라인이면 안내문 표시) ────────── */
+let koreaMapReady = false;
+fetch('https://cdn.jsdelivr.net/gh/southkorea/southkorea-maps@master/kostat/2013/json/skorea_provinces_geo_simple.json')
+  .then((r) => r.json())
+  .then((geo) => {
+    echarts.registerMap('korea', geo);
+    koreaMapReady = true;
+    renderVisibleCharts();
+  })
+  .catch(() => {
+    const el = document.getElementById('chart-map');
+    el.style.display = 'flex';
+    el.style.alignItems = 'center';
+    el.style.justifyContent = 'center';
+    el.textContent = '지도를 불러오려면 인터넷 연결이 필요합니다.';
+    el.style.color = 'var(--text-muted)';
+    el.style.fontSize = '12px';
+  });
+
+/* ── 렌더링: 화면 표시 시 lazy init, 다크 전환 시 재렌더 ───────── */
+const charts = {};
+function renderVisibleCharts() {
+  const t = tokens();
+  document.querySelectorAll('[data-screen-panel]:not(.hidden) [id^="chart-"]').forEach((el) => {
+    if (el.id === 'chart-map' && !koreaMapReady) return; // GeoJSON 로드 후 렌더
+    if (!charts[el.id]) {
+      charts[el.id] = echarts.init(el);
+      if (el.id === 'chart-map') {
+        // 지도 클릭 = 지역 필터 선택 (select + 차트 제목 동기화)
+        charts[el.id].on('click', (p) => {
+          if (!p.name) return;
+          const short = REGION_SHORT[p.name] || p.name;
+          document.getElementById('gen-region-label').textContent = short;
+          const sel = document.getElementById('region-select');
+          if (sel) {
+            const opt = [...sel.options].find((o) => o.text === short);
+            if (opt) sel.value = opt.value || opt.text;
+          }
+        });
+      }
+    }
+    charts[el.id].setOption(chartDefs[el.id](t), true);
+    charts[el.id].resize();
+  });
+}
+
+/* 사이드바 탭 전환 (URL 해시 연동: #supply / #market / #sim) */
+function showScreen(key) {
+  const item = document.querySelector(`.nav-item[data-screen="${key}"]`);
+  if (!item) return;
+  document.querySelectorAll('.nav-item[data-screen]').forEach((n) => n.removeAttribute('aria-current'));
+  item.setAttribute('aria-current', 'page');
+  document.querySelectorAll('[data-screen-panel]').forEach((p) => p.classList.add('hidden'));
+  document.getElementById(`screen-${key}`).classList.remove('hidden');
+  renderVisibleCharts();
+}
+document.querySelectorAll('.nav-item[data-screen]').forEach((item) => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    history.replaceState(null, '', `#${item.dataset.screen}`);
+    showScreen(item.dataset.screen);
+  });
+});
+
+/* 지역 select 변경 → 지도 선택·차트 제목 동기화 */
+document.getElementById('region-select').addEventListener('change', (e) => {
+  const short = e.target.value;
+  document.getElementById('gen-region-label').textContent = short;
+  const full = Object.keys(REGION_SHORT).find((k) => REGION_SHORT[k] === short);
+  if (charts['chart-map'] && full) {
+    charts['chart-map'].dispatchAction({ type: 'select', name: full });
+  }
+});
+
+window.addEventListener('resize', () => Object.values(charts).forEach((c) => c.resize()));
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderVisibleCharts);
+showScreen(['supply', 'market', 'sim', 'plants', 'forecast', 'report', 'org'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'supply');
+</script>
+</body>
+</html>

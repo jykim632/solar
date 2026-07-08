@@ -1,0 +1,347 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "ㅇ 한국전력거래소는 전력을 생산하는 발전사업자, 전력을 수요지까지 전달하는 송배전사업자, 전력을 구매하여 판매하는 판매사업자, 전력을 사용하는 소비자 등으로 구성되는 전력시장에서 전력의 판매 및 구매 활동을 실시간으로 운영, 감시하는 전력시장 운영 업무와 전력 수요에 맞춰 전력 생산량을 결정하고 이를 안정적으로 수요지에 공급되도록 하는 전력계통 운영 업무등을 전담하고 있습니다.\\n\\n신재생에너지공급인증서(REC) 현물시장 장운영일의 거래건수, 평균가 등 장운영실적을 육지 제주 구분하여 제공하는 REC현물시장 정보 조회 서비스입니다.\\n※종가, 거래금액은 체결기준으로 육지 제주 통합 값을 의미합니다.",
+    "version": "1.0.0",
+    "title": "한국전력거래소_REC 현물시장 정보"
+  },
+  "host": "apis.data.go.kr/B552115/RecMarketInfo2",
+  "basePath": "",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/getRecMarketInfo2": {
+      "get": {
+        "responses": {
+          "10": {
+            "description": "INVALID REQUEST PARAMETER ERROR (잘못된 요청 파라메터 에러)"
+          },
+          "11": {
+            "description": "NO MANDATORY REQUEST PARAMETERS ERROR (필수요청 파라메터가 없음)"
+          },
+          "21": {
+            "description": "TEMPORARILY DISABLE THE SERVICEKEY ERROR (일시적으로 사용할 수 없는 서비스 키)"
+          },
+          "33": {
+            "description": "UNSIGNED CALL ERROR (서명되지 않은 호출)"
+          },
+          "200": {
+            "description": "성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "$ref": "#/definitions/header"
+                },
+                "body": {
+                  "$ref": "#/definitions/body"
+                }
+              },
+              "xml": {
+                "name": "response"
+              }
+            }
+          },
+          "00": {
+            "description": "NORMAL SERVICE (정상)"
+          },
+          "02": {
+            "description": "DB_ERROR (데이터베이스 에러)"
+          },
+          "03": {
+            "description": "NODATA ERROR (데이터없음 에러)"
+          },
+          "05": {
+            "description": "SERVICETIMEOUT ERROR (서비스 연결실패 에러)"
+          },
+          "06": {
+            "description": "NOFILE ERROR (파일 없음 에러)"
+          },
+          "07": {
+            "description": "EXSITS FILE ERROR (파일 기존재 에러)"
+          }
+        },
+        "tags": [
+          "API 목록"
+        ],
+        "summary": "REC 현물시장 정보 조회",
+        "description": "최근 장운영일의 거래건수, 평균가, 최고, 최저가, 종가 정보를 조회할 수 있도록 제공하는 서비스",
+        "operationId": "getRecMarketInfo2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "serviceKey",
+          "description": "공공데이터포털에서 받은 인증키",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "pageNo",
+          "description": "페이지번호",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "numOfRows",
+          "description": "한 페이지 결과 수",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "dataType",
+          "description": "응답메시지 형식(xml/json)",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "bzDd",
+          "description": "현물시장거래일",
+          "type": "string",
+          "required": false,
+          "in": "query"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "item": {
+      "type": "object",
+      "properties": {
+        "jejuOrdRecValue": {
+          "type": "string",
+          "description": "제주 매도물량"
+        },
+        "landLwPrc": {
+          "type": "string",
+          "description": "육지 최저가"
+        },
+        "LandOrdRecValue": {
+          "type": "string",
+          "description": "육지 매도물량"
+        },
+        "rn": {
+          "type": "integer",
+          "description": "순번"
+        },
+        "clsPrc": {
+          "type": "string",
+          "description": "종가"
+        },
+        "landTrdCnt": {
+          "type": "string",
+          "description": "육지 체결건수"
+        },
+        "landTrdRecValue": {
+          "type": "string",
+          "description": "육지 체결물량"
+        },
+        "jejuOrdCnt": {
+          "type": "string",
+          "description": "제주 매도건수"
+        },
+        "landOrdCnt": {
+          "type": "string",
+          "description": "육지 매도건수"
+        },
+        "landAvgPrc": {
+          "type": "string",
+          "description": "육지 평균가"
+        },
+        "TrdCnt": {
+          "type": "string",
+          "description": "매수 건수"
+        },
+        "totCnt": {
+          "type": "string",
+          "description": "총 거래건수"
+        },
+        "bzDd": {
+          "type": "string",
+          "description": "현물시장거래일"
+        },
+        "landUplmtPrc": {
+          "type": "string",
+          "description": "육지 상한가"
+        },
+        "trdRecValue": {
+          "type": "string",
+          "description": "매수 물량"
+        },
+        "landHgPrc": {
+          "type": "string",
+          "description": "육지 최고가"
+        },
+        "jejuLwLmtPrc": {
+          "type": "string",
+          "description": "제주 하한가"
+        },
+        "jejuTrdCnt": {
+          "type": "string",
+          "description": "제주 체결건수"
+        },
+        "landLwlmtPrc": {
+          "type": "string",
+          "description": "육지 하한가"
+        },
+        "jejuAvgPrc": {
+          "type": "string",
+          "description": "제주 평균가"
+        },
+        "totRecValue": {
+          "type": "string",
+          "description": "총 거래물량"
+        },
+        "bidTrdVal": {
+          "type": "string",
+          "description": "거래금액"
+        },
+        "jejuHgPrc": {
+          "type": "string",
+          "description": "제주 최고가"
+        },
+        "jejuTrdRecValue": {
+          "type": "string",
+          "description": "제주 체결물량"
+        },
+        "jejuUplmtPrc": {
+          "type": "string",
+          "description": "제주 상한가"
+        },
+        "jejuLwPrc": {
+          "type": "string",
+          "description": "제주 최저가"
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "properties": {
+        "resultCode": {
+          "type": "string",
+          "description": "결과코드"
+        },
+        "resultMsg": {
+          "type": "string",
+          "description": "결과메세지"
+        }
+      }
+    },
+    "body": {
+      "type": "object",
+      "properties": {
+        "dataType": {
+          "type": "string",
+          "description": "응답메시지 형식(xml/json)"
+        },
+        "pageNo": {
+          "type": "string",
+          "description": "페이지번호"
+        },
+        "totalCount": {
+          "type": "string",
+          "description": "전체 결과 수"
+        },
+        "numOfRows": {
+          "type": "string",
+          "description": "한 페이지 결과 수"
+        },
+        "items": {
+          "$ref": "#/definitions/items"
+        }
+      }
+    },
+    "items": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/item"
+        }
+      }
+    }
+  },
+  "swaggerOprtinVOs": [
+    {
+      "oprtinUrl": "https://openapi.kpx.or.kr/openapiv2/RecMarketInfo2",
+      "oprtinNm": "REC 현물시장 정보 조회",
+      "oprtinDc": "최근 장운영일의 거래건수, 평균가, 최고, 최저가, 종가 정보를 조회할 수 있도록 제공하는 서비스",
+      "gwSvcNm": "getRecMarketInfo2",
+      "operationId": "getRecMarketInfo2",
+      "publicDataTyDetailCode": "PRDE02",
+      "reqList": [
+        {
+          "paramtrNm": "serviceKey",
+          "paramtrDc": "공공데이터포털에서 받은 인증키",
+          "paramtrBassValue": "인증키(URL Encode)",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "pageNo",
+          "paramtrDc": "페이지번호",
+          "paramtrBassValue": "1",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "numOfRows",
+          "paramtrDc": "한 페이지 결과 수",
+          "paramtrBassValue": "30",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "dataType",
+          "paramtrDc": "응답메시지 형식(xml/json)",
+          "paramtrBassValue": "xml",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "bzDd",
+          "paramtrDc": "현물시장거래일",
+          "paramtrBassValue": "20211125",
+          "paramtrTy": "string",
+          "paramtrDivision": "옵션",
+          "ck": true
+        }
+      ],
+      "resList": [
+        {
+          "paramtrNm": "header",
+          "paramtrDc": "header",
+          "paramtrDefNm": "#/definitions/header",
+          "subDefNm": "header",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "body",
+          "paramtrDc": "body",
+          "paramtrDefNm": "#/definitions/body",
+          "subDefNm": "body",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true
+        }
+      ]
+    }
+  ]
+}

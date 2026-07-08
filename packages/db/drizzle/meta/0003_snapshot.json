@@ -1,0 +1,2837 @@
+{
+  "id": "5fc425e0-4312-4967-b3bd-16fa6fcb7ed4",
+  "prevId": "8e79cbb5-b840-4095-a30d-8fe31490b017",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.auth_account": {
+      "name": "auth_account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "access_token_expires_at": {
+          "name": "access_token_expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refresh_token_expires_at": {
+          "name": "refresh_token_expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "auth_account_user_id_idx": {
+          "name": "auth_account_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "auth_account_user_id_auth_user_id_fk": {
+          "name": "auth_account_user_id_auth_user_id_fk",
+          "tableFrom": "auth_account",
+          "tableTo": "auth_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auth_invitation": {
+      "name": "auth_invitation",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inviter_id": {
+          "name": "inviter_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "auth_invitation_email_organization_idx": {
+          "name": "auth_invitation_email_organization_idx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "auth_invitation_organization_id_auth_organization_id_fk": {
+          "name": "auth_invitation_organization_id_auth_organization_id_fk",
+          "tableFrom": "auth_invitation",
+          "tableTo": "auth_organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "auth_invitation_inviter_id_auth_user_id_fk": {
+          "name": "auth_invitation_inviter_id_auth_user_id_fk",
+          "tableFrom": "auth_invitation",
+          "tableTo": "auth_user",
+          "columnsFrom": [
+            "inviter_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auth_jwks": {
+      "name": "auth_jwks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "public_key": {
+          "name": "public_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "private_key": {
+          "name": "private_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auth_member": {
+      "name": "auth_member",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'member'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "auth_member_user_organization_idx": {
+          "name": "auth_member_user_organization_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "auth_member_organization_id_auth_organization_id_fk": {
+          "name": "auth_member_organization_id_auth_organization_id_fk",
+          "tableFrom": "auth_member",
+          "tableTo": "auth_organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "auth_member_user_id_auth_user_id_fk": {
+          "name": "auth_member_user_id_auth_user_id_fk",
+          "tableFrom": "auth_member",
+          "tableTo": "auth_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "auth_member_organization_user_uq": {
+          "name": "auth_member_organization_user_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "organization_id",
+            "user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auth_organization": {
+      "name": "auth_organization",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "logo": {
+          "name": "logo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "auth_organization_slug_uq": {
+          "name": "auth_organization_slug_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auth_session": {
+      "name": "auth_session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active_organization_id": {
+          "name": "active_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "auth_session_user_id_idx": {
+          "name": "auth_session_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "auth_session_user_id_auth_user_id_fk": {
+          "name": "auth_session_user_id_auth_user_id_fk",
+          "tableFrom": "auth_session",
+          "tableTo": "auth_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "auth_session_token_uq": {
+          "name": "auth_session_token_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auth_user": {
+      "name": "auth_user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "auth_user_email_uq": {
+          "name": "auth_user_email_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auth_verification": {
+      "name": "auth_verification",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "auth_verification_identifier_idx": {
+          "name": "auth_verification_identifier_idx",
+          "columns": [
+            {
+              "expression": "identifier",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.region": {
+      "name": "region",
+      "schema": "",
+      "columns": {
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "region_name": {
+          "name": "region_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kpx_region_name": {
+          "name": "kpx_region_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kma_grid_x": {
+          "name": "kma_grid_x",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kma_grid_y": {
+          "name": "kma_grid_y",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lat": {
+          "name": "lat",
+          "type": "numeric(9, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lon": {
+          "name": "lon",
+          "type": "numeric(9, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sido_name": {
+          "name": "sido_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sigungu_name": {
+          "name": "sigungu_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "region_kpx_region_name_uq": {
+          "name": "region_kpx_region_name_uq",
+          "columns": [
+            {
+              "expression": "kpx_region_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"region\".\"kpx_region_name\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.datasource": {
+      "name": "datasource",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "source_type": {
+          "name": "source_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "update_cycle": {
+          "name": "update_cycle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "license": {
+          "name": "license",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "datasource_name_provider_uq": {
+          "name": "datasource_name_provider_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name",
+            "provider"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ops_data_quality_check": {
+      "name": "ops_data_quality_check",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "check_name": {
+          "name": "check_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "details": {
+          "name": "details",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ops_data_quality_check_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "ops_data_quality_check_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "ops_data_quality_check",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ops_data_quality_check_status_ck": {
+          "name": "ops_data_quality_check_status_ck",
+          "value": "\"ops_data_quality_check\".\"status\" IN ('pass','warn','fail')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.ops_ingestion_run": {
+      "name": "ops_ingestion_run",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "requested_from": {
+          "name": "requested_from",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requested_to": {
+          "name": "requested_to",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "row_count": {
+          "name": "row_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "error_message": {
+          "name": "error_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "ops_ingestion_run_datasource_started_idx": {
+          "name": "ops_ingestion_run_datasource_started_idx",
+          "columns": [
+            {
+              "expression": "datasource_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ops_ingestion_run_datasource_id_datasource_id_fk": {
+          "name": "ops_ingestion_run_datasource_id_datasource_id_fk",
+          "tableFrom": "ops_ingestion_run",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ops_ingestion_run_status_ck": {
+          "name": "ops_ingestion_run_status_ck",
+          "value": "\"ops_ingestion_run\".\"status\" IN ('running','success','failed','partial')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.raw_object": {
+      "name": "raw_object",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "object_path": {
+          "name": "object_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_type": {
+          "name": "content_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "content_hash": {
+          "name": "content_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        }
+      },
+      "indexes": {
+        "raw_object_datasource_fetched_idx": {
+          "name": "raw_object_datasource_fetched_idx",
+          "columns": [
+            {
+              "expression": "datasource_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "fetched_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "raw_object_datasource_id_datasource_id_fk": {
+          "name": "raw_object_datasource_id_datasource_id_fk",
+          "tableFrom": "raw_object",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "raw_object_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "raw_object_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "raw_object",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "raw_object_datasource_hash_uq": {
+          "name": "raw_object_datasource_hash_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "datasource_id",
+            "content_hash"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mart_demand_hourly": {
+      "name": "mart_demand_hourly",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "interval_start_at": {
+          "name": "interval_start_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interval_end_at": {
+          "name": "interval_end_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "demand_mwh": {
+          "name": "demand_mwh",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "mart_demand_hourly_datasource_id_datasource_id_fk": {
+          "name": "mart_demand_hourly_datasource_id_datasource_id_fk",
+          "tableFrom": "mart_demand_hourly",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_demand_hourly_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "mart_demand_hourly_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "mart_demand_hourly",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mart_demand_hourly_uq": {
+          "name": "mart_demand_hourly_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "interval_start_at",
+            "datasource_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "mart_demand_hourly_value_ck": {
+          "name": "mart_demand_hourly_value_ck",
+          "value": "\"mart_demand_hourly\".\"demand_mwh\" >= 0"
+        },
+        "mart_demand_hourly_interval_ck": {
+          "name": "mart_demand_hourly_interval_ck",
+          "value": "\"mart_demand_hourly\".\"interval_end_at\" = \"mart_demand_hourly\".\"interval_start_at\" + interval '1 hour'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.mart_generation_hourly": {
+      "name": "mart_generation_hourly",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "interval_start_at": {
+          "name": "interval_start_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interval_end_at": {
+          "name": "interval_end_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_date": {
+          "name": "source_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_hour": {
+          "name": "source_hour",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fuel_type": {
+          "name": "fuel_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "generation_mwh": {
+          "name": "generation_mwh",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "includes_ess": {
+          "name": "includes_ess",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mart_generation_hourly_region_fuel_start_idx": {
+          "name": "mart_generation_hourly_region_fuel_start_idx",
+          "columns": [
+            {
+              "expression": "region_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "fuel_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "interval_start_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mart_generation_hourly_region_code_region_region_code_fk": {
+          "name": "mart_generation_hourly_region_code_region_region_code_fk",
+          "tableFrom": "mart_generation_hourly",
+          "tableTo": "region",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "columnsTo": [
+            "region_code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_generation_hourly_datasource_id_datasource_id_fk": {
+          "name": "mart_generation_hourly_datasource_id_datasource_id_fk",
+          "tableFrom": "mart_generation_hourly",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_generation_hourly_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "mart_generation_hourly_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "mart_generation_hourly",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mart_generation_hourly_uq": {
+          "name": "mart_generation_hourly_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "interval_start_at",
+            "region_code",
+            "fuel_type",
+            "datasource_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "mart_generation_hourly_source_hour_ck": {
+          "name": "mart_generation_hourly_source_hour_ck",
+          "value": "\"mart_generation_hourly\".\"source_hour\" BETWEEN 0 AND 24"
+        },
+        "mart_generation_hourly_fuel_type_ck": {
+          "name": "mart_generation_hourly_fuel_type_ck",
+          "value": "\"mart_generation_hourly\".\"fuel_type\" IN ('SOLAR','WIND')"
+        },
+        "mart_generation_hourly_generation_ck": {
+          "name": "mart_generation_hourly_generation_ck",
+          "value": "\"mart_generation_hourly\".\"generation_mwh\" >= 0"
+        },
+        "mart_generation_hourly_interval_ck": {
+          "name": "mart_generation_hourly_interval_ck",
+          "value": "\"mart_generation_hourly\".\"interval_end_at\" = \"mart_generation_hourly\".\"interval_start_at\" + interval '1 hour'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.mart_rec_market_daily": {
+      "name": "mart_rec_market_daily",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "trade_date": {
+          "name": "trade_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "market_area": {
+          "name": "market_area",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "trade_count": {
+          "name": "trade_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volume_rec": {
+          "name": "volume_rec",
+          "type": "numeric(14, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avg_price_krw_per_rec": {
+          "name": "avg_price_krw_per_rec",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "high_price_krw_per_rec": {
+          "name": "high_price_krw_per_rec",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "low_price_krw_per_rec": {
+          "name": "low_price_krw_per_rec",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "close_price_krw_per_rec": {
+          "name": "close_price_krw_per_rec",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_trade_amount_krw": {
+          "name": "total_trade_amount_krw",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mart_rec_market_daily_area_date_idx": {
+          "name": "mart_rec_market_daily_area_date_idx",
+          "columns": [
+            {
+              "expression": "market_area",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "trade_date",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mart_rec_market_daily_datasource_id_datasource_id_fk": {
+          "name": "mart_rec_market_daily_datasource_id_datasource_id_fk",
+          "tableFrom": "mart_rec_market_daily",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_rec_market_daily_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "mart_rec_market_daily_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "mart_rec_market_daily",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mart_rec_market_daily_uq": {
+          "name": "mart_rec_market_daily_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "trade_date",
+            "market_area",
+            "datasource_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "mart_rec_market_daily_market_area_ck": {
+          "name": "mart_rec_market_daily_market_area_ck",
+          "value": "\"mart_rec_market_daily\".\"market_area\" IN ('LAND','JEJU','TOTAL')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.mart_smp_hourly": {
+      "name": "mart_smp_hourly",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "interval_start_at": {
+          "name": "interval_start_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interval_end_at": {
+          "name": "interval_end_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_date": {
+          "name": "source_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_hour": {
+          "name": "source_hour",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "market_area": {
+          "name": "market_area",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "smp_krw_per_kwh": {
+          "name": "smp_krw_per_kwh",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mart_smp_hourly_area_start_idx": {
+          "name": "mart_smp_hourly_area_start_idx",
+          "columns": [
+            {
+              "expression": "market_area",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "interval_start_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mart_smp_hourly_datasource_id_datasource_id_fk": {
+          "name": "mart_smp_hourly_datasource_id_datasource_id_fk",
+          "tableFrom": "mart_smp_hourly",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_smp_hourly_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "mart_smp_hourly_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "mart_smp_hourly",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mart_smp_hourly_uq": {
+          "name": "mart_smp_hourly_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "interval_start_at",
+            "market_area",
+            "datasource_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "mart_smp_hourly_source_hour_ck": {
+          "name": "mart_smp_hourly_source_hour_ck",
+          "value": "\"mart_smp_hourly\".\"source_hour\" BETWEEN 0 AND 24"
+        },
+        "mart_smp_hourly_market_area_ck": {
+          "name": "mart_smp_hourly_market_area_ck",
+          "value": "\"mart_smp_hourly\".\"market_area\" IN ('LAND','JEJU')"
+        },
+        "mart_smp_hourly_value_ck": {
+          "name": "mart_smp_hourly_value_ck",
+          "value": "\"mart_smp_hourly\".\"smp_krw_per_kwh\" BETWEEN 0 AND 1000"
+        },
+        "mart_smp_hourly_interval_ck": {
+          "name": "mart_smp_hourly_interval_ck",
+          "value": "\"mart_smp_hourly\".\"interval_end_at\" = \"mart_smp_hourly\".\"interval_start_at\" + interval '1 hour'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.mart_solar_irradiance": {
+      "name": "mart_solar_irradiance",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "observed_at_utc": {
+          "name": "observed_at_utc",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observed_at_kst": {
+          "name": "observed_at_kst",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "irradiance_value": {
+          "name": "irradiance_value",
+          "type": "numeric(10, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "irradiance_unit": {
+          "name": "irradiance_unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mart_solar_irradiance_region_observed_idx": {
+          "name": "mart_solar_irradiance_region_observed_idx",
+          "columns": [
+            {
+              "expression": "region_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "observed_at_kst",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mart_solar_irradiance_region_code_region_region_code_fk": {
+          "name": "mart_solar_irradiance_region_code_region_region_code_fk",
+          "tableFrom": "mart_solar_irradiance",
+          "tableTo": "region",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "columnsTo": [
+            "region_code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_solar_irradiance_datasource_id_datasource_id_fk": {
+          "name": "mart_solar_irradiance_datasource_id_datasource_id_fk",
+          "tableFrom": "mart_solar_irradiance",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_solar_irradiance_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "mart_solar_irradiance_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "mart_solar_irradiance",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mart_solar_irradiance_uq": {
+          "name": "mart_solar_irradiance_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "observed_at_utc",
+            "region_code",
+            "datasource_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "mart_solar_irradiance_utc_kst_ck": {
+          "name": "mart_solar_irradiance_utc_kst_ck",
+          "value": "\"mart_solar_irradiance\".\"observed_at_kst\" = \"mart_solar_irradiance\".\"observed_at_utc\" + interval '9 hours'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.mart_supply_realtime": {
+      "name": "mart_supply_realtime",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "observed_at": {
+          "name": "observed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot_at": {
+          "name": "slot_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supply_ability_mw": {
+          "name": "supply_ability_mw",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_demand_mw": {
+          "name": "current_demand_mw",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "forecast_load_mw": {
+          "name": "forecast_load_mw",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reserve_power_mw": {
+          "name": "reserve_power_mw",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reserve_rate_pct": {
+          "name": "reserve_rate_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "operating_reserve_power_mw": {
+          "name": "operating_reserve_power_mw",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "operating_reserve_rate_pct": {
+          "name": "operating_reserve_rate_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mart_supply_realtime_slot_idx": {
+          "name": "mart_supply_realtime_slot_idx",
+          "columns": [
+            {
+              "expression": "slot_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mart_supply_realtime_datasource_id_datasource_id_fk": {
+          "name": "mart_supply_realtime_datasource_id_datasource_id_fk",
+          "tableFrom": "mart_supply_realtime",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_supply_realtime_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "mart_supply_realtime_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "mart_supply_realtime",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mart_supply_realtime_uq": {
+          "name": "mart_supply_realtime_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slot_at",
+            "datasource_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mart_weather_forecast_hourly": {
+      "name": "mart_weather_forecast_hourly",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "base_at": {
+          "name": "base_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "forecast_at": {
+          "name": "forecast_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "temperature_c": {
+          "name": "temperature_c",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "humidity_pct": {
+          "name": "humidity_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "precipitation_mm": {
+          "name": "precipitation_mm",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "precipitation_prob_pct": {
+          "name": "precipitation_prob_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wind_speed_ms": {
+          "name": "wind_speed_ms",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sky_code": {
+          "name": "sky_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datasource_id": {
+          "name": "datasource_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingestion_run_id": {
+          "name": "ingestion_run_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mart_weather_forecast_hourly_region_forecast_idx": {
+          "name": "mart_weather_forecast_hourly_region_forecast_idx",
+          "columns": [
+            {
+              "expression": "region_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "forecast_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mart_weather_forecast_hourly_region_code_region_region_code_fk": {
+          "name": "mart_weather_forecast_hourly_region_code_region_region_code_fk",
+          "tableFrom": "mart_weather_forecast_hourly",
+          "tableTo": "region",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "columnsTo": [
+            "region_code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_weather_forecast_hourly_datasource_id_datasource_id_fk": {
+          "name": "mart_weather_forecast_hourly_datasource_id_datasource_id_fk",
+          "tableFrom": "mart_weather_forecast_hourly",
+          "tableTo": "datasource",
+          "columnsFrom": [
+            "datasource_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "mart_weather_forecast_hourly_ingestion_run_id_ops_ingestion_run_id_fk": {
+          "name": "mart_weather_forecast_hourly_ingestion_run_id_ops_ingestion_run_id_fk",
+          "tableFrom": "mart_weather_forecast_hourly",
+          "tableTo": "ops_ingestion_run",
+          "columnsFrom": [
+            "ingestion_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mart_weather_forecast_hourly_uq": {
+          "name": "mart_weather_forecast_hourly_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "base_at",
+            "forecast_at",
+            "region_code",
+            "datasource_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.model_generation_forecast_hourly": {
+      "name": "model_generation_forecast_hourly",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "forecast_run_at": {
+          "name": "forecast_run_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_at": {
+          "name": "target_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fuel_type": {
+          "name": "fuel_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "predicted_generation_mwh": {
+          "name": "predicted_generation_mwh",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actual_generation_mwh": {
+          "name": "actual_generation_mwh",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model_name": {
+          "name": "model_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model_version": {
+          "name": "model_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feature_snapshot": {
+          "name": "feature_snapshot",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "model_generation_forecast_hourly_region_code_region_region_code_fk": {
+          "name": "model_generation_forecast_hourly_region_code_region_region_code_fk",
+          "tableFrom": "model_generation_forecast_hourly",
+          "tableTo": "region",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "columnsTo": [
+            "region_code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "model_generation_forecast_hourly_uq": {
+          "name": "model_generation_forecast_hourly_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "forecast_run_at",
+            "target_at",
+            "region_code",
+            "fuel_type",
+            "model_name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "model_generation_forecast_hourly_fuel_type_ck": {
+          "name": "model_generation_forecast_hourly_fuel_type_ck",
+          "value": "\"model_generation_forecast_hourly\".\"fuel_type\" IN ('SOLAR','WIND')"
+        },
+        "model_generation_forecast_hourly_predicted_ck": {
+          "name": "model_generation_forecast_hourly_predicted_ck",
+          "value": "\"model_generation_forecast_hourly\".\"predicted_generation_mwh\" >= 0"
+        },
+        "model_generation_forecast_hourly_actual_ck": {
+          "name": "model_generation_forecast_hourly_actual_ck",
+          "value": "\"model_generation_forecast_hourly\".\"actual_generation_mwh\" IS NULL OR \"model_generation_forecast_hourly\".\"actual_generation_mwh\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.audit_log": {
+      "name": "audit_log",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "inet",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "audit_log_organization_created_idx": {
+          "name": "audit_log_organization_created_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "audit_log_organization_id_organization_profile_organization_id_fk": {
+          "name": "audit_log_organization_id_organization_profile_organization_id_fk",
+          "tableFrom": "audit_log",
+          "tableTo": "organization_profile",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "audit_log_actor_user_id_auth_user_id_fk": {
+          "name": "audit_log_actor_user_id_auth_user_id_fk",
+          "tableFrom": "audit_log",
+          "tableTo": "auth_user",
+          "columnsFrom": [
+            "actor_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.organization_profile": {
+      "name": "organization_profile",
+      "schema": "",
+      "columns": {
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organization_type": {
+          "name": "organization_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "business_registration_no": {
+          "name": "business_registration_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "default_region_code": {
+          "name": "default_region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "organization_profile_organization_id_auth_organization_id_fk": {
+          "name": "organization_profile_organization_id_auth_organization_id_fk",
+          "tableFrom": "organization_profile",
+          "tableTo": "auth_organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "organization_profile_default_region_code_region_region_code_fk": {
+          "name": "organization_profile_default_region_code_region_region_code_fk",
+          "tableFrom": "organization_profile",
+          "tableTo": "region",
+          "columnsFrom": [
+            "default_region_code"
+          ],
+          "columnsTo": [
+            "region_code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "organization_profile_organization_type_ck": {
+          "name": "organization_profile_organization_type_ck",
+          "value": "\"organization_profile\".\"organization_type\" IN ('internal','om_company','generator')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.plant": {
+      "name": "plant",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "market_area": {
+          "name": "market_area",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "capacity_kw": {
+          "name": "capacity_kw",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "commissioned_on": {
+          "name": "commissioned_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lat": {
+          "name": "lat",
+          "type": "numeric(9, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lon": {
+          "name": "lon",
+          "type": "numeric(9, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "plant_organization_id_idx": {
+          "name": "plant_organization_id_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "plant_organization_id_organization_profile_organization_id_fk": {
+          "name": "plant_organization_id_organization_profile_organization_id_fk",
+          "tableFrom": "plant",
+          "tableTo": "organization_profile",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "plant_region_code_region_region_code_fk": {
+          "name": "plant_region_code_region_region_code_fk",
+          "tableFrom": "plant",
+          "tableTo": "region",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "columnsTo": [
+            "region_code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "plant_market_area_ck": {
+          "name": "plant_market_area_ck",
+          "value": "\"plant\".\"market_area\" IN ('LAND','JEJU')"
+        },
+        "plant_capacity_kw_ck": {
+          "name": "plant_capacity_kw_ck",
+          "value": "\"plant\".\"capacity_kw\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.plant_access_grant": {
+      "name": "plant_access_grant",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "plant_id": {
+          "name": "plant_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "permission": {
+          "name": "permission",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "granted_by": {
+          "name": "granted_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "plant_access_grant_user_id_idx": {
+          "name": "plant_access_grant_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "plant_access_grant_plant_id_plant_id_fk": {
+          "name": "plant_access_grant_plant_id_plant_id_fk",
+          "tableFrom": "plant_access_grant",
+          "tableTo": "plant",
+          "columnsFrom": [
+            "plant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "plant_access_grant_user_id_auth_user_id_fk": {
+          "name": "plant_access_grant_user_id_auth_user_id_fk",
+          "tableFrom": "plant_access_grant",
+          "tableTo": "auth_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "plant_access_grant_granted_by_auth_user_id_fk": {
+          "name": "plant_access_grant_granted_by_auth_user_id_fk",
+          "tableFrom": "plant_access_grant",
+          "tableTo": "auth_user",
+          "columnsFrom": [
+            "granted_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "plant_access_grant_plant_user_uq": {
+          "name": "plant_access_grant_plant_user_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "plant_id",
+            "user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "plant_access_grant_permission_ck": {
+          "name": "plant_access_grant_permission_ck",
+          "value": "\"plant_access_grant\".\"permission\" IN ('viewer','analyst','admin')"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

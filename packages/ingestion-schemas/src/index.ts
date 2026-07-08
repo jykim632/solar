@@ -1,0 +1,14 @@
+/**
+ * @solar/ingestion-schemas — worker-only zod schemas.
+ *
+ * These validate raw external public-data responses (KPX/KMA) at the
+ * "raw 저장 후 staging 변환 전" gate (CLAUDE.md: Zod 계약 검증 규약).
+ * They are intentionally separate from @solar/api-contracts so that
+ * loose, source-shaped external payloads never leak into the API contract.
+ */
+export * from './datagokr.js';
+export * from './kma-vilage-fcst.js';
+export * from './kpx-pv-gen.js';
+export * from './kpx-rec.js';
+export * from './kpx-smp.js';
+export * from './kpx-supply.js';

@@ -1,0 +1,26 @@
+{
+  "name": "solar",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.4.0",
+  "engines": {
+    "node": ">=24.18.0 <25"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "dotenv -e .env -- turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "db:generate": "pnpm --filter @solar/db generate",
+    "db:migrate": "pnpm --filter @solar/db migrate",
+    "db:seed": "pnpm --filter @solar/db seed"
+  },
+  "devDependencies": {
+    "dotenv-cli": "10.0.0",
+    "prettier": "3.4.2",
+    "turbo": "2.5.8",
+    "typescript": "5.9.2"
+  }
+}

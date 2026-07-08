@@ -1,0 +1,258 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "ㅇ 신·재생에너지 발전사업자는 전력거래를 위해 발전설비용량 1,000kW 이하는 전력시장을 통하지 않고 전기판매업자(한전)와 전력거래를 하거나 전력거래소의 회원으로 가입하여 전력시장에서 전력거래를 할 수 있고, 발전설비용량 1,000kW를 초과할 경우 전력거래소 회원으로 가입하여 전력시장에서 전력거래를 하여야 합니다.\\nㅇ 해당목록은 전력시장에 회원으로 가입한 태양광의 지역별 시간별 발전량을 보여주는 서비스입니다.\\n일자, 광역시/도 별 지역, 거래시간, 발전량을 제공합니다.\\n단위 : MWh",
+    "version": "1.0.0",
+    "title": "한국전력거래소_지역별 시간별 태양광 발전량 정보"
+  },
+  "host": "apis.data.go.kr/B552115/PvAmountByLocHr",
+  "basePath": "",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/getPvAmountByLocHr": {
+      "get": {
+        "responses": {
+          "10": {
+            "description": "INVALID REQUEST PARAMETER ERROR (잘못된 요청 파라메터 에러)"
+          },
+          "11": {
+            "description": "NO MANDATORY REQUEST PARAMETERS ERROR (필수요청 파라메터가 없음)"
+          },
+          "21": {
+            "description": "TEMPORARILY DISABLE THE SERVICEKEY ERROR (일시적으로 사용할 수 없는 서비스 키)"
+          },
+          "33": {
+            "description": "UNSIGNED CALL ERROR (서명되지 않은 호출)"
+          },
+          "200": {
+            "description": "성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "$ref": "#/definitions/header"
+                },
+                "body": {
+                  "$ref": "#/definitions/body"
+                }
+              },
+              "xml": {
+                "name": "response"
+              }
+            }
+          },
+          "00": {
+            "description": "NORMAL SERVICE (정상)"
+          },
+          "02": {
+            "description": "DB_ERROR (데이터베이스 에러)"
+          },
+          "03": {
+            "description": "NODATA ERROR (데이터없음 에러)"
+          },
+          "05": {
+            "description": "SERVICETIMEOUT ERROR (서비스 연결실패 에러)"
+          },
+          "06": {
+            "description": "NOFILE ERROR (파일 없음 에러)"
+          },
+          "07": {
+            "description": "EXSITS FILE ERROR (파일 기존재 에러)"
+          }
+        },
+        "tags": [
+          "API 목록"
+        ],
+        "summary": "지역별 시간별 태양광 발전량 조회",
+        "description": "광역시/도 별 지역별 시간별 태양광 발전량을 조회할 수 있는 서비스",
+        "operationId": "getPvAmountByLocHr",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "serviceKey",
+          "description": "공공데이터포털에서 받은 인증키",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "pageNo",
+          "description": "페이지번호",
+          "type": "integer",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "numOfRows",
+          "description": "한 페이지 결과 수",
+          "type": "integer",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "dataType",
+          "description": "응답메시지 형식(xml/json)",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "tradeYmd",
+          "description": "거래일자(YYYYMMDD)",
+          "type": "string",
+          "required": false,
+          "in": "query"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "body": {
+      "type": "object",
+      "properties": {
+        "numOfRows": {
+          "type": "integer",
+          "description": "한 페이지 결과 수"
+        },
+        "items": {
+          "$ref": "#/definitions/items"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "응답메시지 형식(xml/json)"
+        },
+        "pageNo": {
+          "type": "integer",
+          "description": "페이지번호"
+        },
+        "totalCount": {
+          "type": "integer",
+          "description": "전체 결과 수"
+        }
+      }
+    },
+    "items": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/item"
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "properties": {
+        "resultCode": {
+          "type": "string",
+          "description": "결과코드"
+        },
+        "resultMsg": {
+          "type": "string",
+          "description": "결과메시지"
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "tradeNo": {
+          "type": "string",
+          "description": "거래시간"
+        },
+        "amgo": {
+          "type": "number",
+          "description": "발전량"
+        },
+        "regionNm": {
+          "type": "string",
+          "description": "지역"
+        },
+        "tradeYmd": {
+          "type": "string",
+          "description": "거래일자(YYYYMMDD)"
+        },
+        "rn": {
+          "type": "integer",
+          "description": "순번"
+        }
+      }
+    }
+  },
+  "swaggerOprtinVOs": [
+    {
+      "oprtinUrl": "https://openapi.kpx.or.kr/openapiv2/PvAmountByLocHr",
+      "oprtinNm": "지역별 시간별 태양광 발전량 조회",
+      "oprtinDc": "광역시/도 별 지역별 시간별 태양광 발전량을 조회할 수 있는 서비스",
+      "gwSvcNm": "getPvAmountByLocHr",
+      "operationId": "getPvAmountByLocHr",
+      "publicDataTyDetailCode": "PRDE02",
+      "reqList": [
+        {
+          "paramtrNm": "serviceKey",
+          "paramtrDc": "공공데이터포털에서 받은 인증키",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "pageNo",
+          "paramtrDc": "페이지번호",
+          "paramtrTy": "integer",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "numOfRows",
+          "paramtrDc": "한 페이지 결과 수",
+          "paramtrTy": "integer",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "dataType",
+          "paramtrDc": "응답메시지 형식(xml/json)",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "tradeYmd",
+          "paramtrDc": "거래일자(YYYYMMDD)",
+          "paramtrTy": "string",
+          "paramtrDivision": "옵션",
+          "ck": true
+        }
+      ],
+      "resList": [
+        {
+          "paramtrNm": "header",
+          "paramtrDc": "header",
+          "paramtrDefNm": "#/definitions/header",
+          "subDefNm": "header",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "body",
+          "paramtrDc": "body",
+          "paramtrDefNm": "#/definitions/body",
+          "subDefNm": "body",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true
+        }
+      ]
+    }
+  ]
+}

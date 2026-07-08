@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "region_kpx_region_name_uq" ON "region" USING btree ("kpx_region_name") WHERE "region"."kpx_region_name" IS NOT NULL;

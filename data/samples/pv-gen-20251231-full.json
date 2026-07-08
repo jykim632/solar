@@ -1,0 +1,2874 @@
+{
+ "response": {
+  "header": {
+   "resultCode": "00",
+   "resultMsg": "OK"
+  },
+  "body": {
+   "dataType": "JSON",
+   "totalCount": "408",
+   "numOfRows": "500",
+   "pageNo": "1",
+   "items": {
+    "item": [
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 0.264949,
+      "rn": 1
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.021924,
+      "rn": 2
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.144087,
+      "rn": 3
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.0426,
+      "rn": 4
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0,
+      "rn": 5
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 6
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 7
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 8
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 9
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 10
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 11
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 12
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 0.25644,
+      "rn": 13
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.10908,
+      "rn": 14
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.000256,
+      "rn": 15
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.66792,
+      "rn": 16
+     },
+     {
+      "tradeNo": "1",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.41584,
+      "rn": 17
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 166.930314,
+      "rn": 18
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 102.105975,
+      "rn": 19
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 140.142861,
+      "rn": 20
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 224.596651,
+      "rn": 21
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 10.542105,
+      "rn": 22
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 26.428593,
+      "rn": 23
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 4.741626,
+      "rn": 24
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 42.396423,
+      "rn": 25
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 4.45371,
+      "rn": 26
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 8.073284,
+      "rn": 27
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 19.168266,
+      "rn": 28
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 16.129091,
+      "rn": 29
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 378.012768,
+      "rn": 30
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 231.632051,
+      "rn": 31
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 35.917163,
+      "rn": 32
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 367.305127,
+      "rn": 33
+     },
+     {
+      "tradeNo": "10",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 87.170476,
+      "rn": 34
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 285.458273,
+      "rn": 35
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 189.991011,
+      "rn": 36
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 242.917341,
+      "rn": 37
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 378.73753,
+      "rn": 38
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 26.649927,
+      "rn": 39
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 43.979551,
+      "rn": 40
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 8.798276,
+      "rn": 41
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 64.688523,
+      "rn": 42
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 8.04044,
+      "rn": 43
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 14.372842,
+      "rn": 44
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 30.130692,
+      "rn": 45
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 30.570425,
+      "rn": 46
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 665.335392,
+      "rn": 47
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 414.444782,
+      "rn": 48
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 91.414777,
+      "rn": 49
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 739.578737,
+      "rn": 50
+     },
+     {
+      "tradeNo": "11",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 160.550648,
+      "rn": 51
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 365.527374,
+      "rn": 52
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 247.061074,
+      "rn": 53
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 271.531722,
+      "rn": 54
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 457.533886,
+      "rn": 55
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 27.167078,
+      "rn": 56
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 48.566992,
+      "rn": 57
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 10.850092,
+      "rn": 58
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 75.251085,
+      "rn": 59
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 10.533283,
+      "rn": 60
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 19.154436,
+      "rn": 61
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 29.789283,
+      "rn": 62
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 38.233638,
+      "rn": 63
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 853.528422,
+      "rn": 64
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 523.018718,
+      "rn": 65
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 122.913006,
+      "rn": 66
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 1006.859429,
+      "rn": 67
+     },
+     {
+      "tradeNo": "12",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 211.707359,
+      "rn": 68
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 397.51993,
+      "rn": 69
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 269.552398,
+      "rn": 70
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 308.784643,
+      "rn": 71
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 497.73018,
+      "rn": 72
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 31.872408,
+      "rn": 73
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 57.618217,
+      "rn": 74
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 11.736294,
+      "rn": 75
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 91.220859,
+      "rn": 76
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 11.445236,
+      "rn": 77
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 22.114012,
+      "rn": 78
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 30.875336,
+      "rn": 79
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 41.736165,
+      "rn": 80
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 1172.678732,
+      "rn": 81
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 578.703436,
+      "rn": 82
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 121.40988,
+      "rn": 83
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 1069.583244,
+      "rn": 84
+     },
+     {
+      "tradeNo": "13",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 234.243461,
+      "rn": 85
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 394.915882,
+      "rn": 86
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 262.795269,
+      "rn": 87
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 279.284625,
+      "rn": 88
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 509.858978,
+      "rn": 89
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 42.723783,
+      "rn": 90
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 57.729709,
+      "rn": 91
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 11.097332,
+      "rn": 92
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 81.592286,
+      "rn": 93
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 11.139769,
+      "rn": 94
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 21.194336,
+      "rn": 95
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 36.825332,
+      "rn": 96
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 41.927936,
+      "rn": 97
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 1270.895538,
+      "rn": 98
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 548.182597,
+      "rn": 99
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 144.011607,
+      "rn": 100
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 1040.368575,
+      "rn": 101
+     },
+     {
+      "tradeNo": "14",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 233.868483,
+      "rn": 102
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 331.539878,
+      "rn": 103
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 222.382072,
+      "rn": 104
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 274.481337,
+      "rn": 105
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 408.199523,
+      "rn": 106
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 36.893722,
+      "rn": 107
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 41.740446,
+      "rn": 108
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 9.245988,
+      "rn": 109
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 68.032291,
+      "rn": 110
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 9.528484,
+      "rn": 111
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 17.875099,
+      "rn": 112
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 28.219533,
+      "rn": 113
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 36.9566,
+      "rn": 114
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 1241.774707,
+      "rn": 115
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 480.913623,
+      "rn": 116
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 132.66218,
+      "rn": 117
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 897.473026,
+      "rn": 118
+     },
+     {
+      "tradeNo": "15",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 200.889865,
+      "rn": 119
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 205.120602,
+      "rn": 120
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 138.889348,
+      "rn": 121
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 194.477508,
+      "rn": 122
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 279.397225,
+      "rn": 123
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 24.917815,
+      "rn": 124
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 30.437099,
+      "rn": 125
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 6.035221,
+      "rn": 126
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 45.495409,
+      "rn": 127
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 6.180283,
+      "rn": 128
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 11.689151,
+      "rn": 129
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 20.314606,
+      "rn": 130
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 23.893824,
+      "rn": 131
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 917.455673,
+      "rn": 132
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 317.39194,
+      "rn": 133
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 82.40147,
+      "rn": 134
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 569.984315,
+      "rn": 135
+     },
+     {
+      "tradeNo": "16",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 127.200941,
+      "rn": 136
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 96.77783,
+      "rn": 137
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 52.099417,
+      "rn": 138
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 76.349582,
+      "rn": 139
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 111.782753,
+      "rn": 140
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 9.473408,
+      "rn": 141
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 15.813182,
+      "rn": 142
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 1.936924,
+      "rn": 143
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 12.688374,
+      "rn": 144
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 1.660459,
+      "rn": 145
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 4.966518,
+      "rn": 146
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 5.735357,
+      "rn": 147
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 12.162578,
+      "rn": 148
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 676.409612,
+      "rn": 149
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 127.847642,
+      "rn": 150
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 31.072253,
+      "rn": 151
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 270.989782,
+      "rn": 152
+     },
+     {
+      "tradeNo": "17",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 64.650603,
+      "rn": 153
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 57.922515,
+      "rn": 154
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 14.363584,
+      "rn": 155
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 28.238219,
+      "rn": 156
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 49.6552,
+      "rn": 157
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 2.513452,
+      "rn": 158
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 7.550856,
+      "rn": 159
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.07285,
+      "rn": 160
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 3.045496,
+      "rn": 161
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.068228,
+      "rn": 162
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 1.825076,
+      "rn": 163
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.517915,
+      "rn": 164
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 6.370808,
+      "rn": 165
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 502.11076,
+      "rn": 166
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 50.697358,
+      "rn": 167
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 3.238802,
+      "rn": 168
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 130.102553,
+      "rn": 169
+     },
+     {
+      "tradeNo": "18",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 40.739031,
+      "rn": 170
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 54.441765,
+      "rn": 171
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 14.904707,
+      "rn": 172
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 28.999263,
+      "rn": 173
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 60.602002,
+      "rn": 174
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 2.18272,
+      "rn": 175
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 6.630572,
+      "rn": 176
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 177
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 3.479668,
+      "rn": 178
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.04932,
+      "rn": 179
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 1.472571,
+      "rn": 180
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.23012,
+      "rn": 181
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 4.620697,
+      "rn": 182
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 462.141191,
+      "rn": 183
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 55.520261,
+      "rn": 184
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 1.873192,
+      "rn": 185
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 114.294636,
+      "rn": 186
+     },
+     {
+      "tradeNo": "19",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 40.772099,
+      "rn": 187
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 0.15632,
+      "rn": 188
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.0,
+      "rn": 189
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.0704,
+      "rn": 190
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.0,
+      "rn": 191
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0,
+      "rn": 192
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 193
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 194
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 195
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 196
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 197
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 198
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 199
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 0.0417,
+      "rn": 200
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.00488,
+      "rn": 201
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.000256,
+      "rn": 202
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.1054,
+      "rn": 203
+     },
+     {
+      "tradeNo": "2",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.2486,
+      "rn": 204
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 48.47594,
+      "rn": 205
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 16.593368,
+      "rn": 206
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 22.611288,
+      "rn": 207
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 58.23917,
+      "rn": 208
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 1.60444,
+      "rn": 209
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 3.526884,
+      "rn": 210
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 211
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 3.403532,
+      "rn": 212
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.159,
+      "rn": 213
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.860453,
+      "rn": 214
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.4174,
+      "rn": 215
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 1.359513,
+      "rn": 216
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 304.585815,
+      "rn": 217
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 47.760947,
+      "rn": 218
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 2.471328,
+      "rn": 219
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 63.276855,
+      "rn": 220
+     },
+     {
+      "tradeNo": "20",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 26.84511,
+      "rn": 221
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 29.571618,
+      "rn": 222
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 11.034928,
+      "rn": 223
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 13.555442,
+      "rn": 224
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 36.550483,
+      "rn": 225
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.97084,
+      "rn": 226
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.870928,
+      "rn": 227
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 228
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 2.34386,
+      "rn": 229
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.11036,
+      "rn": 230
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.350129,
+      "rn": 231
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.4328,
+      "rn": 232
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.655116,
+      "rn": 233
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 74.210536,
+      "rn": 234
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 30.542191,
+      "rn": 235
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 1.11582,
+      "rn": 236
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 31.989107,
+      "rn": 237
+     },
+     {
+      "tradeNo": "21",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 12.805758,
+      "rn": 238
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 17.01306,
+      "rn": 239
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 5.394957,
+      "rn": 240
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 6.720871,
+      "rn": 241
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 17.713291,
+      "rn": 242
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.51556,
+      "rn": 243
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0022,
+      "rn": 244
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 245
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.90972,
+      "rn": 246
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.11032,
+      "rn": 247
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 248
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.18876,
+      "rn": 249
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.28896,
+      "rn": 250
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 21.398681,
+      "rn": 251
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 18.00991,
+      "rn": 252
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.374972,
+      "rn": 253
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 12.951672,
+      "rn": 254
+     },
+     {
+      "tradeNo": "22",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 6.186931,
+      "rn": 255
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 6.847815,
+      "rn": 256
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 3.083556,
+      "rn": 257
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 2.51672,
+      "rn": 258
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 5.381998,
+      "rn": 259
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0859,
+      "rn": 260
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 261
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 262
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.06448,
+      "rn": 263
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.07992,
+      "rn": 264
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 265
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.01728,
+      "rn": 266
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 267
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 6.706734,
+      "rn": 268
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 7.75336,
+      "rn": 269
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.007784,
+      "rn": 270
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 4.574528,
+      "rn": 271
+     },
+     {
+      "tradeNo": "23",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 3.240492,
+      "rn": 272
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 2.128733,
+      "rn": 273
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.89092,
+      "rn": 274
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.57812,
+      "rn": 275
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.668776,
+      "rn": 276
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0009,
+      "rn": 277
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 278
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 279
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 280
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 281
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 282
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 283
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 284
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 1.313604,
+      "rn": 285
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 1.4588,
+      "rn": 286
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.000432,
+      "rn": 287
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 1.209008,
+      "rn": 288
+     },
+     {
+      "tradeNo": "24",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 1.587904,
+      "rn": 289
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 1.1861,
+      "rn": 290
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.0,
+      "rn": 291
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.0326,
+      "rn": 292
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.229,
+      "rn": 293
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0,
+      "rn": 294
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 295
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 296
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 297
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 298
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 299
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 300
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 301
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 0.0,
+      "rn": 302
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.1788,
+      "rn": 303
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.000344,
+      "rn": 304
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.6074,
+      "rn": 305
+     },
+     {
+      "tradeNo": "3",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.2856,
+      "rn": 306
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 1.35102,
+      "rn": 307
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.0,
+      "rn": 308
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.0172,
+      "rn": 309
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.2964,
+      "rn": 310
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0,
+      "rn": 311
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 312
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 313
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 314
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 315
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 316
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 317
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 318
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 0.0,
+      "rn": 319
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.2384,
+      "rn": 320
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.000328,
+      "rn": 321
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.7448,
+      "rn": 322
+     },
+     {
+      "tradeNo": "4",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.2852,
+      "rn": 323
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 1.25236,
+      "rn": 324
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.0,
+      "rn": 325
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.0,
+      "rn": 326
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.2962,
+      "rn": 327
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0,
+      "rn": 328
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 329
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 330
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 331
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 332
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 333
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 334
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 335
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 0.0,
+      "rn": 336
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.142,
+      "rn": 337
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.000376,
+      "rn": 338
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.7472,
+      "rn": 339
+     },
+     {
+      "tradeNo": "5",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.0796,
+      "rn": 340
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 0.20882,
+      "rn": 341
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.0,
+      "rn": 342
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.0,
+      "rn": 343
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.1148,
+      "rn": 344
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0,
+      "rn": 345
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 346
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 347
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 348
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 349
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 350
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 351
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 352
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 0.0,
+      "rn": 353
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.0,
+      "rn": 354
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.000368,
+      "rn": 355
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.31436,
+      "rn": 356
+     },
+     {
+      "tradeNo": "6",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.0,
+      "rn": 357
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 0.0,
+      "rn": 358
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.0,
+      "rn": 359
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.0,
+      "rn": 360
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.003,
+      "rn": 361
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.0,
+      "rn": 362
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.0,
+      "rn": 363
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.0,
+      "rn": 364
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.0,
+      "rn": 365
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.0,
+      "rn": 366
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.0,
+      "rn": 367
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.0,
+      "rn": 368
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.0,
+      "rn": 369
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 0.00072,
+      "rn": 370
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.00072,
+      "rn": 371
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.00036,
+      "rn": 372
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.0,
+      "rn": 373
+     },
+     {
+      "tradeNo": "7",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.0,
+      "rn": 374
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 0.4616,
+      "rn": 375
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 0.152845,
+      "rn": 376
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 0.968531,
+      "rn": 377
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 0.745394,
+      "rn": 378
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 0.009211,
+      "rn": 379
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 0.091312,
+      "rn": 380
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.001668,
+      "rn": 381
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 0.374919,
+      "rn": 382
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.000773,
+      "rn": 383
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 0.03488,
+      "rn": 384
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 0.317611,
+      "rn": 385
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 0.019279,
+      "rn": 386
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 1.006833,
+      "rn": 387
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 0.454514,
+      "rn": 388
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 0.818981,
+      "rn": 389
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 0.2632,
+      "rn": 390
+     },
+     {
+      "tradeNo": "8",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 0.203699,
+      "rn": 391
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "강원도",
+      "amgo": 38.731678,
+      "rn": 392
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "경기도",
+      "amgo": 21.603756,
+      "rn": 393
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "경상남도",
+      "amgo": 40.342281,
+      "rn": 394
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "경상북도",
+      "amgo": 53.871789,
+      "rn": 395
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "광주시",
+      "amgo": 1.47787,
+      "rn": 396
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "대구시",
+      "amgo": 6.819907,
+      "rn": 397
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "대전시",
+      "amgo": 0.879459,
+      "rn": 398
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "부산시",
+      "amgo": 14.701149,
+      "rn": 399
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "서울시",
+      "amgo": 0.774662,
+      "rn": 400
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "세종시",
+      "amgo": 2.056484,
+      "rn": 401
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "울산시",
+      "amgo": 7.037168,
+      "rn": 402
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "인천시",
+      "amgo": 3.42689,
+      "rn": 403
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "전라남도",
+      "amgo": 87.738653,
+      "rn": 404
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "전라북도",
+      "amgo": 53.026152,
+      "rn": 405
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "제주도",
+      "amgo": 16.180912,
+      "rn": 406
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "충청남도",
+      "amgo": 84.881797,
+      "rn": 407
+     },
+     {
+      "tradeNo": "9",
+      "tradeYmd": "20251231",
+      "regionNm": "충청북도",
+      "amgo": 20.706205,
+      "rn": 408
+     }
+    ]
+   }
+  }
+ }
+}
